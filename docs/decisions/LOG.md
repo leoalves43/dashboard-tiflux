@@ -5,3 +5,4 @@
 2026-09-29 | Query tests run against real Postgres in schema dashboard_test instead of fakes | SQL is the unit under test; Tiflux I/O still uses named fakes | -
 2026-09-29 | CSV uses ';' + UTF-8 BOM + decimal comma | Excel pt-BR opens it correctly | -
 2026-09-29 | Python row/JSON types use Any (JsonObject, Row, PlainRow) | raw Tiflux JSON and SQL rows are heterogeneous; typed at the column level in db.py | CLAUDE.md 'no any' (deliberate exception)
+2026-09-29 | Each sync cycle reconciles open tickets against filter_by=open and refetches/deletes the stale ones | closing/merging/deleting may not bump updated_at, so incremental alone can leave ghosts open | -

@@ -23,6 +23,8 @@ BACKFILL_WINDOW_DAYS = 31
 
 class SyncStorePort(Protocol):
     def upsert(self, table: Table, rows: Sequence[Row], key: str) -> int: ...
+    def ticket_numbers(self, situation: str) -> set[int]: ...
+    def delete_tickets(self, numbers: Sequence[int]) -> int: ...
     def get_state(self, key: str) -> str | None: ...
     def set_state(self, key: str, value: str) -> None: ...
 
@@ -49,6 +51,7 @@ class TicketSync:
         if self._store.get_state(STATE_BACKFILL_DONE) != "1":
             self.backfill()
         self.incremental()
+        self.reconcile_open()
 
     def sync_dimensions(self) -> None:
         self._copy_all("/clients", {}, clients, map_client)
@@ -80,6 +83,28 @@ class TicketSync:
         self._copy_tickets({**params, "filter_by": "canceled"}, situation="canceled")
         self._store.set_state(STATE_LAST_INCREMENTAL, iso(started))
         log.info("incremental since=%s changed=%d", iso(since), changed)
+
+    def reconcile_open(self) -> None:
+        """Re-checks tickets open locally but no longer open in Tiflux.
+
+        Closing, merging or deleting a ticket does not always move updated_at, so the
+        incremental pass can miss it and the ticket stays "open" here forever.
+        """
+        open_in_api: set[int] = set()
+        for page in self._source.iter_pages("/tickets", {"filter_by": "open"}):
+            self._store.upsert(tickets, [map_ticket(item) for item in page], "ticket_number")
+            open_in_api.update(item["ticket_number"] for item in page)
+        stale = sorted(self._store.ticket_numbers("open") - open_in_api)
+        deleted = [number for number in stale if not self._refresh_ticket(number)]
+        self._store.delete_tickets(deleted)
+        log.info("reconcile open=%d stale=%d deleted=%d", len(open_in_api), len(stale), len(deleted))
+
+    def _refresh_ticket(self, number: int) -> bool:
+        item = self._source.fetch_one(f"/tickets/{number}")
+        if item is None:
+            return False
+        self._store.upsert(tickets, [map_ticket(item)], "ticket_number")
+        return True
 
     def _has_tickets_before(self, moment: datetime) -> bool:
         params: dict[str, str | int] = {

@@ -59,10 +59,16 @@ class FakeTifluxSource:
     """In-memory Tiflux: `tickets_for(params)` decides which tickets a /tickets query returns."""
 
     def __init__(self, tickets_for: Callable[[dict[str, str | int]], list[JsonObject]],
-                 dimensions: dict[str, list[JsonObject]] | None = None) -> None:
+                 dimensions: dict[str, list[JsonObject]] | None = None,
+                 details: dict[int, JsonObject] | None = None) -> None:
         self._tickets_for = tickets_for
         self._dimensions = dimensions or {}
+        self._details = details or {}  # /tickets/<n>; missing number = 404 (deleted)
         self.calls: list[tuple[str, dict[str, str | int]]] = []
+
+    def fetch_one(self, path: str) -> JsonObject | None:
+        self.calls.append((path, {}))
+        return self._details.get(int(path.rsplit("/", 1)[1]))
 
     def _items(self, path: str, params: dict[str, str | int]) -> list[JsonObject]:
         self.calls.append((path, dict(params)))
@@ -90,6 +96,13 @@ class FakeSyncStore:
         for row in rows:
             bucket[row[key]] = row
         return len(rows)
+
+    def ticket_numbers(self, situation: str) -> set[int]:
+        return {key for key, row in self.rows.get("tickets", {}).items() if row["situation"] == situation}
+
+    def delete_tickets(self, numbers: Sequence[int]) -> int:
+        bucket = self.rows.get("tickets", {})
+        return sum(bucket.pop(number, None) is not None for number in numbers)
 
     def get_state(self, key: str) -> str | None:
         return self.state.get(key)

@@ -6,7 +6,7 @@ Compose: `docker-compose.yml`; host ports `DB_PORT` (Postgres) and `WEB_PORT` (U
 ## Backend (`backend/app`)
 - `config.py` settings from `.env`; `db.py` tables + `ensure_schema` (advisory lock, api and sync both call it).
 - `tiflux/client.py` pagination (`offset` = page number, 200/page), waits on `RateLimit-Remaining<=1` and 429.
-- `sync/service.py` `TicketSync.run_cycle`: dimensions → one-time backfill (31-day created_at windows walking back until none older; resumable via `sync_state.backfill_cursor`) → incremental (`update_start_datetime` − 10 min overlap, `filter_by=all` then `canceled`). `sync/runner.py` loops every `SYNC_INTERVAL_MINUTES`.
+- `sync/service.py` `TicketSync.run_cycle`: dimensions → one-time backfill (31-day created_at windows walking back until none older; resumable via `sync_state.backfill_cursor`) → incremental (`update_start_datetime` − 10 min overlap, `filter_by=all` then `canceled`) → `reconcile_open` (local open ∖ API open refetched via `/tickets/{n}`; 404 = deleted locally). `sync/runner.py` loops every `SYNC_INTERVAL_MINUTES`.
 - `sla.py` SLA rules as SQL expressions with `now` bound (see spec § SLA). `filters.py` `TicketFilters` → WHERE; the only filter path for charts, tables and exports.
 - `queries/` metrics (shared aggregates), overview (KPIs, series, buckets), breakdown (per dimension), ticket_list (paged + streaming), options.
 - `routes/` REST under `/api`, exports under `/api/export/{tickets|breakdown/<dim>|kpis}/{csv|xlsx}`. Query models: see `routes/deps.py` (FastAPI expands a Pydantic query model only when it is the sole query param).

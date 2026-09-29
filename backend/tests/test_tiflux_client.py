@@ -55,3 +55,10 @@ def test_seconds_until_reset_falls_back_on_garbage() -> None:
     assert seconds_until_reset("2026-09-29T12:00:30Z", now) == pytest.approx(31.0)
     assert seconds_until_reset("not-a-date", now) == 30.0
     assert seconds_until_reset(None, now) == 30.0
+
+
+def test_fetch_one_returns_none_on_404() -> None:
+    fake = FakeTifluxHttp([httpx.Response(404, json={"message": "not found"}), httpx.Response(200, json={"ticket_number": 5})])
+    client = _client(fake, FakeSleeper())
+    assert client.fetch_one("/tickets/4") is None
+    assert client.fetch_one("/tickets/5") == {"ticket_number": 5}

@@ -21,9 +21,11 @@ def _nested(item: JsonObject, key: str, field: str) -> Any:
 
 
 def derive_situation(item: JsonObject) -> str:
-    """List payloads have no canceled flag; the default canceled status is named 'Canceled'."""
+    """Detail payloads flag canceled statuses; list payloads don't, so fall back to the name."""
     if not item.get("is_closed"):
         return "open"
+    if _nested(item, "status", "default_canceled"):
+        return "canceled"
     status_name = (_nested(item, "status", "name") or "").lower()
     return "canceled" if status_name.startswith("cancel") else "closed"
 

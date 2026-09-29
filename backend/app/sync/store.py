@@ -2,10 +2,10 @@
 
 from collections.abc import Sequence
 
-from sqlalchemy import Engine, Table, func, select
+from sqlalchemy import Engine, Table, delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 
-from app.db import sync_state
+from app.db import sync_state, tickets
 from app.sync.mapper import Row
 
 
@@ -26,6 +26,17 @@ class SyncStore:
         with self._engine.begin() as conn:
             conn.execute(statement.on_conflict_do_update(index_elements=[key], set_=updates))
         return len(rows)
+
+    def ticket_numbers(self, situation: str) -> set[int]:
+        query = select(tickets.c.ticket_number).where(tickets.c.situation == situation)
+        with self._engine.connect() as conn:
+            return set(conn.execute(query).scalars())
+
+    def delete_tickets(self, numbers: Sequence[int]) -> int:
+        if not numbers:
+            return 0
+        with self._engine.begin() as conn:
+            return conn.execute(delete(tickets).where(tickets.c.ticket_number.in_(numbers))).rowcount
 
     def get_state(self, key: str) -> str | None:
         with self._engine.connect() as conn:

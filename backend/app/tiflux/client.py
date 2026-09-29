@@ -30,8 +30,14 @@ class TifluxSource(Protocol):
 
     def iter_pages(self, path: str, params: dict[str, str | int]) -> Iterator[list[JsonObject]]: ...
 
+    def fetch_one(self, path: str) -> JsonObject | None: ...
+
 
 class TifluxApiError(RuntimeError):
+    pass
+
+
+class TifluxNotFound(TifluxApiError):
     pass
 
 
@@ -71,6 +77,16 @@ class TifluxClient:
         total = int(response.headers.get("X-Total-Items", len(items)))
         return Page(items=items, total=total)
 
+    def fetch_one(self, path: str) -> JsonObject | None:
+        """Single resource (e.g. /tickets/123); None when Tiflux answers 404 (deleted)."""
+        try:
+            item = self._get_with_retry(path, {}).json()
+        except TifluxNotFound:
+            return None
+        if not isinstance(item, dict):
+            raise TifluxApiError(f"GET {path} returned {type(item).__name__}; expected JSON object")
+        return item
+
     def iter_pages(self, path: str, params: dict[str, str | int]) -> Iterator[list[JsonObject]]:
         """Yields pages until a short page; Tiflux `offset` is the 1-based page number."""
         offset = 1
@@ -89,6 +105,8 @@ class TifluxClient:
             if response is not None and response.status_code < 400:
                 self._respect_remaining_quota(response)
                 return response
+            if response is not None and response.status_code == 404:
+                raise TifluxNotFound(f"GET {path} params={params} -> 404")
             if response is not None and response.status_code not in (429, 500, 502, 503, 504):
                 raise TifluxApiError(f"GET {path} params={params} -> {response.status_code}: {response.text[:300]}")
             self._sleep(self._retry_wait(response, attempt))

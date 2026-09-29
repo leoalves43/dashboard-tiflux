@@ -1,5 +1,7 @@
 from datetime import UTC, datetime
 
+from app.db import tickets
+from app.sync.mapper import map_ticket
 from app.sync.service import (
     STATE_BACKFILL_CURSOR,
     STATE_BACKFILL_DONE,
@@ -83,3 +85,24 @@ def test_run_cycle_skips_backfill_when_done() -> None:
     sync.run_cycle()
     assert store.rows["clients"][1]["name"] == "C"
     assert not any("start_datetime" in params for _, params in source.calls)
+
+
+def test_reconcile_refreshes_tickets_no_longer_open_and_drops_deleted() -> None:
+    """Regression: a ticket closed in Tiflux without a new updated_at stayed open locally."""
+    still_open = make_ticket(10, "2026-09-01T10:00:00Z")
+    closed_detail = make_ticket(11, "2026-09-01T10:00:00Z", is_closed=True,
+                                status={"id": 9, "name": "Resolvido", "default_canceled": False})
+    canceled_detail = make_ticket(12, "2026-09-01T10:00:00Z", is_closed=True,
+                                  status={"id": 8, "name": "Anulado", "default_canceled": True})
+    store = FakeSyncStore()
+    for number in (10, 11, 12, 13):
+        store.upsert(tickets, [map_ticket(make_ticket(number, "2026-09-01T10:00:00Z"))], "ticket_number")
+    source = FakeTifluxSource(lambda params: [still_open] if params.get("filter_by") == "open" else [],
+                              details={11: closed_detail, 12: canceled_detail})
+    TicketSync(source, store, clock=FixedClock(NOW)).reconcile_open()
+    rows = store.rows["tickets"]
+    assert rows[10]["situation"] == "open"
+    assert rows[11]["situation"] == "closed"
+    assert rows[12]["situation"] == "canceled"
+    assert 13 not in rows  # 404 in Tiflux -> deleted
+    assert ("/tickets/10", {}) not in source.calls  # tickets still open are not refetched
