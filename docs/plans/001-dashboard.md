@@ -27,4 +27,4 @@ Tiflux API ──> sync (Python) ──> Postgres 18 (schema dashboard) <── 
 - [x] 4. Filtros → SQL + consultas (KPIs, séries, por cliente/mesa/técnico, atrasos, lista). Done: testes de SLA/dias de atraso.
 - [x] 5. Exportação CSV/XLSX + rotas. Done: teste gera arquivo com linhas = consulta.
 - [x] 6. DESIGN.md + frontend (filtros globais, páginas, gráficos, tabelas, botões de exportação). Done: build ok, páginas carregam.
-- [ ] 7. Subir tudo, verificar critérios da spec, docs (INDEX, ARCHITECTURE, LOG, HANDOFF).
+- [x] 7. Subir tudo, verificar critérios da spec, docs (INDEX, ARCHITECTURE, LOG, HANDOFF).
