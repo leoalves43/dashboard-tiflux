@@ -15,6 +15,7 @@ export const DRILLS: Partial<Record<Dimension, Drill>> = {
   responsible: (f, row) => ({ ...f, responsible_ids: addNumber(f.responsible_ids, row.key) }),
   priority: (f, row) => ({ ...f, priority_names: addText(f.priority_names, row.key) }),
   stage: (f, row) => ({ ...f, stage_names: addText(f.stage_names, row.key) }),
+  status: (f, row) => ({ ...f, status_names: addText(f.status_names, row.key) }),
 };
 
 export const DIMENSION_LABEL: Record<Dimension, string> = {

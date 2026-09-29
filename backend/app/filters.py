@@ -26,6 +26,7 @@ class TicketFilters(BaseModel):
     responsible_ids: list[int] = Field(default_factory=list)
     priority_names: list[str] = Field(default_factory=list)
     stage_names: list[str] = Field(default_factory=list)
+    status_names: list[str] = Field(default_factory=list)
     situations: list[Situation] = Field(default_factory=list)
     sla: list[SlaState] = Field(default_factory=list)
     stage_late: bool = False
@@ -64,6 +65,7 @@ def _membership_conditions(filters: TicketFilters) -> list[ColumnElement[bool]]:
         (t.c.client_id, filters.client_ids),
         (t.c.priority_name, filters.priority_names),
         (t.c.stage_name, filters.stage_names),
+        (t.c.status_name, filters.status_names),
         (t.c.situation, filters.situations),
     ]
     return [column.in_(values) for column, values in pairs if values]

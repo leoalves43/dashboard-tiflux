@@ -15,6 +15,7 @@ export interface Filters {
   responsible_ids: number[];
   priority_names: string[];
   stage_names: string[];
+  status_names: string[];
   situations: Situation[];
   sla: SlaState[];
   stage_late: boolean;
@@ -97,6 +98,7 @@ export interface FilterOptions {
   technicians: Option[];
   priorities: string[];
   stages: string[];
+  statuses: string[];
 }
 
 export interface SyncStatus {

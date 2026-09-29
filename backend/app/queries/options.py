@@ -40,6 +40,7 @@ def filter_options(conn: Connection) -> PlainRow:
                                         technicians.c.id, technicians.c.name),
         "priorities": _text_options(conn, t.c.priority_name),
         "stages": _text_options(conn, t.c.stage_name),
+        "statuses": _text_options(conn, t.c.status_name),
     }
 
 

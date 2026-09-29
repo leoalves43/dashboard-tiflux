@@ -74,6 +74,7 @@ export function FilterBar({ filters, options, onChange }: Props) {
         selected={filters.responsible_ids} onChange={set("responsible_ids")} />
       <MultiSelect label="Prioridade" options={textOptions(options?.priorities)} selected={filters.priority_names} onChange={set("priority_names")} />
       <MultiSelect label="Estágio" options={textOptions(options?.stages)} selected={filters.stage_names} onChange={set("stage_names")} />
+      <MultiSelect label="Status" options={textOptions(options?.statuses)} selected={filters.status_names} onChange={set("status_names")} />
       <MultiSelect<Situation> label="Situação" options={labelOptions(SITUATION_LABEL)} selected={filters.situations} onChange={set("situations")} />
       <MultiSelect<SlaState> label="SLA" options={labelOptions(SLA_LABEL)} selected={filters.sla} onChange={set("sla")} />
       <button type="button" className="btn" aria-pressed={filters.stage_late}

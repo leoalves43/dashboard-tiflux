@@ -9,6 +9,7 @@ export const EMPTY_FILTERS: Filters = {
   responsible_ids: [],
   priority_names: [],
   stage_names: [],
+  status_names: [],
   situations: [],
   sla: [],
   stage_late: false,
@@ -17,7 +18,7 @@ export const EMPTY_FILTERS: Filters = {
 
 type FilterKey = keyof Filters;
 const NUMBER_LISTS: FilterKey[] = ["desk_ids", "client_ids", "responsible_ids"];
-const TEXT_LISTS: FilterKey[] = ["priority_names", "stage_names", "situations", "sla"];
+const TEXT_LISTS: FilterKey[] = ["priority_names", "stage_names", "status_names", "situations", "sla"];
 
 /** Filters -> URLSearchParams in the repeated-key form FastAPI expects (desk_ids=1&desk_ids=2). */
 export function filtersToParams(filters: Filters, extra: Record<string, string | number> = {}): URLSearchParams {

@@ -12,6 +12,7 @@ const SAMPLE: Filters = {
   date_from: "2026-09-01",
   desk_ids: [1, 2],
   responsible_ids: [0],
+  status_names: ["Em Atendimento"],
   situations: ["open"],
   sla: ["late"],
   stage_late: true,
