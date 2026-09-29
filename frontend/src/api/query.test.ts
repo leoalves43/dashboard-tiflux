@@ -47,6 +47,11 @@ describe("exportUrl", () => {
     expect(url).toContain("desk_ids=1&desk_ids=2");
   });
 
+  it("passes granularity for series and kind for buckets", () => {
+    expect(exportUrl({ kind: "timeseries", granularity: "week" }, "csv", EMPTY_FILTERS)).toBe("/api/export/timeseries/csv?granularity=week");
+    expect(exportUrl({ kind: "buckets", bucket: "aging" }, "xlsx", EMPTY_FILTERS)).toBe("/api/export/buckets/aging/xlsx?");
+  });
+
   it("targets the dimension for breakdowns", () => {
     expect(exportUrl({ kind: "breakdown", dimension: "desk" }, "csv", EMPTY_FILTERS)).toBe("/api/export/breakdown/desk/csv?");
   });

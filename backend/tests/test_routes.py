@@ -50,3 +50,16 @@ def test_breakdown_export_csv(client: TestClient) -> None:
     lines = response.content.decode("utf-8-sig").splitlines()
     assert lines[0].startswith("Mesa;Total;")
     assert lines[1].startswith("SUPORTE;2;")
+
+
+def test_timeseries_export(client: TestClient) -> None:
+    response = client.get("/api/export/timeseries/csv", params={"granularity": "month"})
+    lines = response.content.decode("utf-8-sig").splitlines()
+    assert lines == ["Período (início);Abertos;Resolvidos", "2026-08-01;1;0", "2026-09-01;5;2"]
+
+
+def test_bucket_export(client: TestClient) -> None:
+    response = client.get("/api/export/buckets/late/xlsx")
+    rows = list(load_workbook(io.BytesIO(response.content)).active.iter_rows(values_only=True))
+    assert ("8–15 dias", 1) in rows and len(rows) == 6
+    assert client.get("/api/export/buckets/nope/csv").status_code == 404

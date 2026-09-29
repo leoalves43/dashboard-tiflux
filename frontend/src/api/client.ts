@@ -38,7 +38,9 @@ export const api = {
 export type ExportTarget =
   | { kind: "tickets"; sort?: string; direction?: "asc" | "desc" }
   | { kind: "breakdown"; dimension: Dimension }
-  | { kind: "kpis" };
+  | { kind: "kpis" }
+  | { kind: "timeseries"; granularity: Granularity }
+  | { kind: "buckets"; bucket: "late" | "aging" };
 
 /** URL that downloads the full filtered view (never just the visible page). */
 export function exportUrl(target: ExportTarget, format: ExportFormat, filters: Filters): string {
@@ -46,6 +48,10 @@ export function exportUrl(target: ExportTarget, format: ExportFormat, filters: F
     return `/api/export/breakdown/${target.dimension}/${format}?${filtersToParams(filters)}`;
   }
   if (target.kind === "kpis") return `/api/export/kpis/${format}?${filtersToParams(filters)}`;
+  if (target.kind === "timeseries") {
+    return `/api/export/timeseries/${format}?${filtersToParams(filters, { granularity: target.granularity })}`;
+  }
+  if (target.kind === "buckets") return `/api/export/buckets/${target.bucket}/${format}?${filtersToParams(filters)}`;
   const extra = { sort: target.sort ?? "created_at", direction: target.direction ?? "desc" };
   return `/api/export/tickets/${format}?${filtersToParams(filters, extra)}`;
 }

@@ -12,14 +12,22 @@ import { BreakdownPage } from "./BreakdownPage";
 
 const GRANULARITY_LABEL: Record<Granularity, string> = { day: "Dia", week: "Semana", month: "Mês" };
 
-function BucketChart({ title, subtitle, rows, name }: { title: string; subtitle: string; rows: BucketRow[]; name: string }) {
+interface BucketChartProps {
+  title: string;
+  subtitle: string;
+  rows: BucketRow[];
+  bucket: "late" | "aging";
+  filters: Filters;
+}
+
+export function BucketChart({ title, subtitle, rows, bucket, filters }: BucketChartProps) {
   const theme = useChartTheme();
   const option = useMemo(
-    () => columns(theme, rows.map((r) => r.bucket), rows.map((r) => r.count), theme.ordinal, name),
-    [theme, rows, name],
+    () => columns(theme, rows.map((r) => r.bucket), rows.map((r) => r.count), theme.ordinal, "Chamados"),
+    [theme, rows],
   );
   return (
-    <Card title={title} subtitle={subtitle}>
+    <Card title={title} subtitle={subtitle} actions={<ExportButtons target={{ kind: "buckets", bucket }} filters={filters} />}>
       <EChart option={option} ariaLabel={title} />
     </Card>
   );
@@ -38,11 +46,16 @@ function TrendCard({ filters }: { filters: Filters }) {
   }, [theme, result.data, granularity]);
   return (
     <Card title="Chamados abertos x resolvidos" subtitle="Por data de abertura e de resolução" loading={result.loading} error={result.error}
-      actions={(Object.keys(GRANULARITY_LABEL) as Granularity[]).map((g) => (
-        <button key={g} type="button" className="btn" aria-pressed={granularity === g} onClick={() => setGranularity(g)}>
-          {GRANULARITY_LABEL[g]}
-        </button>
-      ))}>
+      actions={
+        <>
+          {(Object.keys(GRANULARITY_LABEL) as Granularity[]).map((g) => (
+            <button key={g} type="button" className="btn" aria-pressed={granularity === g} onClick={() => setGranularity(g)}>
+              {GRANULARITY_LABEL[g]}
+            </button>
+          ))}
+          <ExportButtons target={{ kind: "timeseries", granularity }} filters={filters} />
+        </>
+      }>
       <EChart option={option} ariaLabel="Série temporal de chamados abertos e resolvidos" />
     </Card>
   );
@@ -61,8 +74,8 @@ export function OverviewPage({ filters, onFilters }: { filters: Filters; onFilte
       </Card>
       <TrendCard filters={filters} />
       <div className="grid-2">
-        <BucketChart title="Abertos em atraso por dias de atraso" subtitle="Dias corridos além do prazo de solução" rows={late.data ?? []} name="Chamados" />
-        <BucketChart title="Backlog aberto por idade" subtitle="Dias desde a abertura" rows={aging.data ?? []} name="Chamados" />
+        <BucketChart title="Abertos em atraso por dias de atraso" subtitle="Dias corridos além do prazo de solução" rows={late.data ?? []} bucket="late" filters={filters} />
+        <BucketChart title="Backlog aberto por idade" subtitle="Dias desde a abertura" rows={aging.data ?? []} bucket="aging" filters={filters} />
       </div>
       <BreakdownPage dimension="desk" filters={filters} onFilters={onFilters} />
     </>

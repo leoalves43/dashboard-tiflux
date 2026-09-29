@@ -28,3 +28,4 @@ Tiflux API ──> sync (Python) ──> Postgres 18 (schema dashboard) <── 
 - [x] 5. Exportação CSV/XLSX + rotas. Done: teste gera arquivo com linhas = consulta.
 - [x] 6. DESIGN.md + frontend (filtros globais, páginas, gráficos, tabelas, botões de exportação). Done: build ok, páginas carregam.
 - [x] 7. Subir tudo, verificar critérios da spec, docs (INDEX, ARCHITECTURE, LOG, HANDOFF).
+- [x] 8. Exportação dos gráficos (série temporal e faixas de dias). Done: botões em todo card; testes de rota.
