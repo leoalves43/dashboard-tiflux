@@ -21,7 +21,7 @@ Tiflux API ──> sync (Python) ──> Postgres 18 (schema dashboard) <── 
 - Volume do Postgres é persistente: apagar (`down -v`) perde a carga (recuperável por novo sync).
 
 ## Tarefas
-- [ ] 1. Infra: compose, Dockerfiles, `.env.example`, ajuste do `.env`. Done: `docker compose config` válido.
+- [x] 1. Infra: compose, Dockerfiles, `.env.example`, ajuste do `.env`. Done: `docker compose config` válido.
 - [ ] 2. Backend base: config, conexão, schema/tabelas. Done: tabelas criadas no start; testes passam.
 - [ ] 3. Cliente Tiflux + sync (backfill, incremental, rate limit). Done: testes com `FakeTifluxClient`; contagens batem com a API.
 - [ ] 4. Filtros → SQL + consultas (KPIs, séries, por cliente/mesa/técnico, atrasos, lista). Done: testes de SLA/dias de atraso.

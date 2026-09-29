@@ -1,0 +1,62 @@
+name: dashboard-tiflux
+
+services:
+  db:
+    image: postgres:18.6-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      TZ: ${TZ}
+    ports:
+      - "${DB_PORT}:5432"
+    # PG18+ images keep PGDATA under /var/lib/postgresql/<major>/docker, so mount the parent
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    image: dashboard-tiflux-backend
+    restart: unless-stopped
+    env_file: .env
+    environment: &internal_db
+      DB_HOST: db
+      DB_PORT: "5432" # container port; DB_PORT in .env is the host-published port
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  sync:
+    build: ./backend
+    image: dashboard-tiflux-backend
+    restart: unless-stopped
+    env_file: .env
+    environment: *internal_db
+    command: ["python", "-m", "app.sync.runner"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:
