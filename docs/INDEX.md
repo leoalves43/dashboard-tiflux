@@ -5,3 +5,4 @@
 - docs/decisions/LOG.md — read before revisiting a design choice
 - docs/state/HANDOFF.md — read first when resuming work
 - DESIGN.md — read before any UI/style/chart change (tokens in frontend/src/styles/tokens.css)
+- docs/reference/openapi-spec-tiflux.json — read when calling a Tiflux endpoint not used yet (official API v2 spec)
