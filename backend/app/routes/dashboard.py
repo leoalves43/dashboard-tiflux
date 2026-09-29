@@ -1,16 +1,14 @@
 """Read endpoints consumed by the dashboard UI."""
 
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.queries import breakdown as breakdown_queries
 from app.queries import options, overview, ticket_list
 from app.queries.breakdown import Dimension
 from app.queries.metrics import PlainRow
-from app.queries.overview import Granularity
-from app.queries.ticket_list import SortDirection
-from app.routes.deps import Conn, Ctx, Filters
+from app.routes.deps import Conn, Ctx, Filters, TicketPageQuery, TimeseriesQuery
 
 router = APIRouter(prefix="/api")
 
@@ -36,8 +34,8 @@ def get_kpis(conn: Conn, ctx: Ctx, filters: Filters) -> PlainRow:
 
 
 @router.get("/timeseries")
-def get_timeseries(conn: Conn, ctx: Ctx, filters: Filters, granularity: Granularity = "month") -> list[PlainRow]:
-    return overview.timeseries(conn, filters, granularity, ctx)
+def get_timeseries(conn: Conn, ctx: Ctx, query: Annotated[TimeseriesQuery, Query()]) -> list[PlainRow]:
+    return overview.timeseries(conn, query, query.granularity, ctx)
 
 
 @router.get("/buckets/{kind}")
@@ -55,10 +53,9 @@ def get_breakdown(dimension: Dimension, conn: Conn, ctx: Ctx, filters: Filters) 
 
 
 @router.get("/tickets")
-def get_tickets(conn: Conn, ctx: Ctx, filters: Filters, sort: str = "created_at",
-                direction: SortDirection = "desc", page: int = 1, page_size: int = 50) -> dict[str, Any]:
+def get_tickets(conn: Conn, ctx: Ctx, query: Annotated[TicketPageQuery, Query()]) -> dict[str, Any]:
     try:
-        return ticket_list.list_tickets(conn, filters, ctx, sort=sort, direction=direction,
-                                        page=page, page_size=page_size)
+        return ticket_list.list_tickets(conn, query, ctx, sort=query.sort, direction=query.direction,
+                                        page=query.page, page_size=query.page_size)
     except ValueError as error:
         raise HTTPException(422, str(error)) from error

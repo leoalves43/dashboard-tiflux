@@ -9,6 +9,8 @@ from sqlalchemy import Connection, Engine
 
 from app.config import Settings
 from app.filters import TicketFilters
+from app.queries.overview import Granularity
+from app.queries.ticket_list import SortDirection
 from app.sla import QueryContext
 
 
@@ -29,3 +31,19 @@ def get_context(settings: Annotated[Settings, Depends(get_settings)]) -> QueryCo
 Conn = Annotated[Connection, Depends(get_connection)]
 Ctx = Annotated[QueryContext, Depends(get_context)]
 Filters = Annotated[TicketFilters, Query()]
+
+
+# FastAPI only expands a Pydantic query model when it is the sole query parameter,
+# so endpoints needing extra params get a subclass instead of a second argument.
+class TimeseriesQuery(TicketFilters):
+    granularity: Granularity = "month"
+
+
+class TicketSortQuery(TicketFilters):
+    sort: str = "created_at"
+    direction: SortDirection = "desc"
+
+
+class TicketPageQuery(TicketSortQuery):
+    page: int = 1
+    page_size: int = 50

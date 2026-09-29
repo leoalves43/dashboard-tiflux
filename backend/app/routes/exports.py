@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Annotated
 from zoneinfo import ZoneInfo
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 
 from app.config import Settings
 from app.exporters import ExportColumn, ExportFormat, export_bytes
@@ -12,8 +12,8 @@ from app.queries import breakdown as breakdown_queries
 from app.queries.breakdown import DIMENSIONS, Dimension
 from app.queries.metrics import METRIC_COLUMNS
 from app.queries.overview import kpis
-from app.queries.ticket_list import LIST_COLUMNS, SortDirection, iter_all_tickets
-from app.routes.deps import Conn, Ctx, Filters, get_settings
+from app.queries.ticket_list import LIST_COLUMNS, iter_all_tickets
+from app.routes.deps import Conn, Ctx, Filters, TicketSortQuery, get_settings
 
 router = APIRouter(prefix="/api/export")
 MEDIA_TYPES = {
@@ -30,10 +30,10 @@ def _download(content: bytes, fmt: ExportFormat, basename: str, tz: str) -> Resp
 
 
 @router.get("/tickets/{fmt}")
-def export_tickets(fmt: ExportFormat, conn: Conn, ctx: Ctx, filters: Filters, settings: AppSettings,
-                   sort: str = "created_at", direction: SortDirection = "desc") -> Response:
+def export_tickets(fmt: ExportFormat, conn: Conn, ctx: Ctx, settings: AppSettings,
+                   query: Annotated[TicketSortQuery, Query()]) -> Response:
     try:
-        rows = iter_all_tickets(conn, filters, ctx, sort=sort, direction=direction)
+        rows = iter_all_tickets(conn, query, ctx, sort=query.sort, direction=query.direction)
         content = export_bytes(fmt, rows, LIST_COLUMNS, "Chamados", settings.tz)
     except ValueError as error:
         raise HTTPException(422, str(error)) from error
