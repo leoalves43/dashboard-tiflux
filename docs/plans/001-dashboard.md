@@ -24,7 +24,7 @@ Tiflux API ──> sync (Python) ──> Postgres 18 (schema dashboard) <── 
 - [x] 1. Infra: compose, Dockerfiles, `.env.example`, ajuste do `.env`. Done: `docker compose config` válido.
 - [x] 2. Backend base: config, conexão, schema/tabelas. Done: tabelas criadas no start; testes passam.
 - [x] 3. Cliente Tiflux + sync (backfill, incremental, rate limit). Done: testes com `FakeTifluxClient`; contagens batem com a API.
-- [ ] 4. Filtros → SQL + consultas (KPIs, séries, por cliente/mesa/técnico, atrasos, lista). Done: testes de SLA/dias de atraso.
+- [x] 4. Filtros → SQL + consultas (KPIs, séries, por cliente/mesa/técnico, atrasos, lista). Done: testes de SLA/dias de atraso.
 - [ ] 5. Exportação CSV/XLSX + rotas. Done: teste gera arquivo com linhas = consulta.
 - [ ] 6. DESIGN.md + frontend (filtros globais, páginas, gráficos, tabelas, botões de exportação). Done: build ok, páginas carregam.
 - [ ] 7. Subir tudo, verificar critérios da spec, docs (INDEX, ARCHITECTURE, LOG, HANDOFF).
