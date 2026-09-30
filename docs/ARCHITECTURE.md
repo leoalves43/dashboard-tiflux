@@ -1,7 +1,7 @@
 # ARCHITECTURE
 
-Tiflux API → `sync` → Postgres 18 (schema `$SCHEMA_NAME`) ← `api` (FastAPI) ← `web` (nginx + React, proxies `/api`).
-Compose: `docker-compose.yml`; host ports `DB_PORT` (Postgres) and `WEB_PORT` (UI). Token stays in api/sync only.
+Tiflux API → `sync` → shared external Postgres (container `Postgres`, not in compose; schema `$SCHEMA_NAME`) ← `api` (FastAPI) ← `web` (nginx + React, proxies `/api`).
+Compose: `docker-compose.yml`; api/sync reach the DB at `DB_HOST=host.docker.internal:DB_PORT`; host port `WEB_PORT` (UI). Token stays in api/sync only.
 
 ## Backend (`backend/app`)
 - `config.py` settings from `.env`; `db.py` tables + `ensure_schema` (advisory lock, api and sync both call it).

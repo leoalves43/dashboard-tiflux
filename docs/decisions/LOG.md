@@ -6,3 +6,4 @@
 2026-09-29 | CSV uses ';' + UTF-8 BOM + decimal comma | Excel pt-BR opens it correctly | -
 2026-09-29 | Python row/JSON types use Any (JsonObject, Row, PlainRow) | raw Tiflux JSON and SQL rows are heterogeneous; typed at the column level in db.py | CLAUDE.md 'no any' (deliberate exception)
 2026-09-29 | Each sync cycle reconciles open tickets against filter_by=open and refetches/deletes the stale ones | closing/merging/deleting may not bump updated_at, so incremental alone can leave ghosts open | -
+2026-09-30 | Drop compose `db` service; use shared "Postgres" container via host.docker.internal | one Postgres for all projects | Postgres 18 db service in compose
