@@ -7,6 +7,7 @@ import { horizontalBars, type BarSeries } from "../charts/options";
 import { useChartTheme, type ChartTheme } from "../charts/theme";
 import { BreakdownTable } from "../components/BreakdownTable";
 import { Card, ExportButtons } from "../components/Card";
+import { TicketTable } from "../components/TicketTable";
 import { DIMENSION_LABEL, DRILLS } from "./drill";
 
 type ChartView = "volume" | "late";
@@ -65,6 +66,7 @@ export function BreakdownPage({ dimension, filters, onFilters }: Props) {
         actions={<ExportButtons target={{ kind: "breakdown", dimension }} filters={filters} />}>
         <BreakdownTable rows={rows} nameLabel={label} onSelect={drill ? select : undefined} />
       </Card>
+      <TicketTable title="Chamados" filters={filters} />
     </>
   );
 }
