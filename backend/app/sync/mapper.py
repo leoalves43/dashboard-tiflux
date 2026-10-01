@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import Any
 
+from app.sync.translations import translate_name
 from app.tiflux.client import JsonObject
 
 Row = dict[str, Any]
@@ -64,11 +65,11 @@ def map_ticket(item: JsonObject, situation: str | None = None) -> Row:
 def _ticket_refs(item: JsonObject) -> Row:
     return {
         "status_id": _nested(item, "status", "id"),
-        "status_name": _nested(item, "status", "name"),
+        "status_name": translate_name(_nested(item, "status", "name")),
         "stage_id": _nested(item, "stage", "id"),
-        "stage_name": _nested(item, "stage", "name"),
+        "stage_name": translate_name(_nested(item, "stage", "name")),
         "priority_id": _nested(item, "priority", "id"),
-        "priority_name": _nested(item, "priority", "name"),
+        "priority_name": translate_name(_nested(item, "priority", "name")),
         "desk_id": _nested(item, "desk", "id"),
         "desk_name": _nested(item, "desk", "name"),
         "client_id": _nested(item, "client", "id"),

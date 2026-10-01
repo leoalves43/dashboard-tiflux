@@ -18,7 +18,9 @@ def main() -> None:
     settings = Settings()
     engine = build_engine(settings)
     ensure_schema(engine, settings.schema_name)
-    sync = TicketSync(TifluxClient(settings.url_tiflux, settings.token_tiflux), SyncStore(engine))
+    store = SyncStore(engine)
+    log.info("translated_names=%d", store.translate_stored_names())
+    sync = TicketSync(TifluxClient(settings.url_tiflux, settings.token_tiflux), store)
     while True:
         try:
             sync.run_cycle()

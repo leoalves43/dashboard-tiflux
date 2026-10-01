@@ -2,11 +2,12 @@
 
 from collections.abc import Sequence
 
-from sqlalchemy import Engine, Table, delete, func, select
+from sqlalchemy import Engine, Table, case, delete, func, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from app.db import sync_state, tickets
 from app.sync.mapper import Row
+from app.sync.translations import PT_BR_NAMES, TRANSLATED_COLUMNS
 
 
 class SyncStore:
@@ -37,6 +38,17 @@ class SyncStore:
             return 0
         with self._engine.begin() as conn:
             return conn.execute(delete(tickets).where(tickets.c.ticket_number.in_(numbers))).rowcount
+
+    def translate_stored_names(self) -> int:
+        """Applies the de-para to rows synced before it existed; idempotent, so safe on every start."""
+        changed = 0
+        with self._engine.begin() as conn:
+            for name in TRANSLATED_COLUMNS:
+                column = tickets.c[name]
+                statement = (update(tickets).where(column.in_(PT_BR_NAMES))
+                             .values({name: case(PT_BR_NAMES, value=column)}))
+                changed += conn.execute(statement).rowcount
+        return changed
 
     def get_state(self, key: str) -> str | None:
         with self._engine.connect() as conn:

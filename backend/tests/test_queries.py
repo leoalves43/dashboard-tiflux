@@ -33,8 +33,8 @@ def test_kpis_follow_sla_definition(engine: Engine, ctx: QueryContext) -> None:
     ({"desk_ids": [11]}, 1),
     ({"search": "infra"}, 1),
     ({"stage_late": True}, 1),
-    ({"status_names": ["Opened"]}, 3),
-    ({"status_names": ["Opened", "Closed"]}, 5),
+    ({"status_names": ["Aberto"]}, 3),
+    ({"status_names": ["Aberto", "Fechado"]}, 5),
     ({"date_from": date(2026, 9, 1), "date_to": date(2026, 9, 10)}, 3),
     ({"date_field": "solved", "date_from": date(2026, 9, 12)}, 1),
 ])

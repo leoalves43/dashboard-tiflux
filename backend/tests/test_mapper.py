@@ -38,3 +38,16 @@ def test_explicit_situation_overrides_and_is_validated() -> None:
     assert map_ticket(item, "canceled")["situation"] == "canceled"
     with pytest.raises(ValueError, match="'bogus'"):
         map_ticket(item, "bogus")
+
+
+def test_map_ticket_translates_tiflux_default_names() -> None:
+    item = make_ticket(1, "2026-09-01T10:00:00Z", status={"id": 1, "name": "Opened"},
+                       stage={"id": 2, "name": "Pending"}, priority={"id": 3, "name": "High"})
+    row = map_ticket(item)
+    assert (row["status_name"], row["stage_name"], row["priority_name"]) == ("Aberto", "Pendente", "Alta")
+    assert row["raw"]["status"]["name"] == "Opened"
+
+
+def test_map_ticket_keeps_custom_names() -> None:
+    item = make_ticket(1, "2026-09-01T10:00:00Z", status={"id": 1, "name": "Em Atendimento"})
+    assert map_ticket(item)["status_name"] == "Em Atendimento"
