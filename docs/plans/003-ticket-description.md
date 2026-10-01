@@ -33,7 +33,7 @@ GET /api/tickets/{n}/description: banco; se ausente → Tiflux ao vivo (como hoj
 - Reversível: `DROP TABLE ticket_descriptions` desfaz tudo; nada existente é alterado.
 
 ## Tarefas
-- [ ] 1. Schema `ticket_descriptions` + `html_to_text` em Python. Done: tabela criada no Postgres de teste; testes do conversor (blocos, script, entidades, vazio).
+- [x] 1. Schema `ticket_descriptions` + `html_to_text` em Python. Done: tabela criada no Postgres de teste; testes do conversor (blocos, script, entidades, vazio).
 - [ ] 2. `DescriptionSync` + store (`pending_descriptions`, `save_description`, contagem) + ciclo com prazo no runner. Done: testes com fakes (ordem, retomada sem refazer, rebusca após alteração, 404, falha isolada, para no prazo) e teste do store contra o Postgres.
 - [ ] 3. Exportação: coluna "Descrição" (texto limpo, corte no XLSX) na lista de chamados. Done: testes de query/exportação/rota; arquivo real aberto com a coluna.
 - [ ] 4. `/description` lê do banco com fallback ao vivo. Done: teste de rota (banco, ausente → Tiflux).

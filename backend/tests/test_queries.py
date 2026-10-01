@@ -1,7 +1,7 @@
 from datetime import date
 
 import pytest
-from sqlalchemy import Engine
+from sqlalchemy import Engine, inspect
 
 from app.filters import TicketFilters
 from app.queries.breakdown import breakdown
@@ -81,3 +81,8 @@ def test_buckets_and_timeseries(engine: Engine, ctx: QueryContext) -> None:
         {"period": "2026-08-01", "created": 1, "solved": 0},
         {"period": "2026-09-01", "created": 5, "solved": 2},
     ]
+
+
+def test_ensure_schema_creates_ticket_descriptions(engine: Engine) -> None:
+    with engine.connect() as conn:
+        assert inspect(conn).has_table("ticket_descriptions")
