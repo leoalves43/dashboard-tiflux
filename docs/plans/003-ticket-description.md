@@ -21,7 +21,7 @@ GET /api/tickets/{n}/description: banco; se ausente → Tiflux ao vivo (como hoj
 - Exportação: `iter_all_tickets` ganha um parâmetro para incluir a descrição (só a exportação usa; a listagem paginada da UI não carrega esse texto). Corte em 32.767 caracteres no XLSX.
 
 ## Arquivos
-- backend: `app/db.py`, `app/rich_text.py` (novo), `app/sync/descriptions.py` (novo), `app/sync/store.py`, `app/sync/runner.py`, `app/queries/ticket_list.py`, `app/routes/exports.py`, `app/routes/dashboard.py`, `app/exporters.py`; testes `tests/test_rich_text.py`, `tests/test_description_sync.py` (novos), `tests/fakes.py`, `tests/test_queries.py`, `tests/test_exporters.py`, `tests/test_routes.py`.
+- backend: `app/db.py`, `app/rich_text.py` (novo), `app/sync/descriptions.py` (novo), `app/sync/description_store.py` (novo; o `SyncStore` não muda), `app/sync/runner.py`, `app/queries/ticket_list.py`, `app/routes/exports.py`, `app/routes/dashboard.py`, `app/exporters.py`; testes `tests/test_rich_text.py`, `tests/test_description_sync.py` (novos), `tests/fakes.py`, `tests/test_queries.py`, `tests/test_exporters.py`, `tests/test_routes.py`.
 - frontend: nenhum (o endpoint `/description` mantém o contrato).
 - docs: `docs/ARCHITECTURE.md`, `docs/decisions/LOG.md`, `docs/state/HANDOFF.md`.
 
@@ -34,7 +34,7 @@ GET /api/tickets/{n}/description: banco; se ausente → Tiflux ao vivo (como hoj
 
 ## Tarefas
 - [x] 1. Schema `ticket_descriptions` + `html_to_text` em Python. Done: tabela criada no Postgres de teste; testes do conversor (blocos, script, entidades, vazio).
-- [ ] 2. `DescriptionSync` + store (`pending_descriptions`, `save_description`, contagem) + ciclo com prazo no runner. Done: testes com fakes (ordem, retomada sem refazer, rebusca após alteração, 404, falha isolada, para no prazo) e teste do store contra o Postgres.
+- [x] 2. `DescriptionSync` + `DescriptionStore` (`pending_descriptions`, `save_description`, `description_progress`) + ciclo com prazo no runner. Done: testes com fakes (ordem, retomada sem refazer, rebusca após alteração, 404, falha isolada, para no prazo) e teste do store contra o Postgres.
 - [ ] 3. Exportação: coluna "Descrição" (texto limpo, corte no XLSX) na lista de chamados. Done: testes de query/exportação/rota; arquivo real aberto com a coluna.
 - [ ] 4. `/description` lê do banco com fallback ao vivo. Done: teste de rota (banco, ausente → Tiflux).
 - [ ] 5. Subir e acompanhar: rebuild do `sync`/`api`, log de progresso, reinício no meio para provar a retomada. Done: contagem continua após o restart; chamado novo aparece normalmente.
