@@ -22,7 +22,7 @@ GET /api/tickets/{n}/description: banco; se ausente → Tiflux ao vivo (como hoj
 
 ## Arquivos
 - backend: `app/db.py`, `app/rich_text.py` (novo), `app/sync/descriptions.py` (novo), `app/sync/description_store.py` (novo; o `SyncStore` não muda), `app/sync/runner.py`, `app/queries/ticket_list.py`, `app/routes/exports.py`, `app/routes/dashboard.py`, `app/exporters.py`; testes `tests/test_rich_text.py`, `tests/test_description_sync.py` (novos), `tests/fakes.py`, `tests/test_queries.py`, `tests/test_exporters.py`, `tests/test_routes.py`.
-- frontend: nenhum (o endpoint `/description` mantém o contrato).
+- frontend: nenhum código (o endpoint `/description` mantém o contrato). `frontend/nginx.conf`: re-resolver o `api` (achado na tarefa 5: rebuild do api deixava todo /api em 502).
 - docs: `docs/ARCHITECTURE.md`, `docs/decisions/LOG.md`, `docs/state/HANDOFF.md`.
 
 ## Riscos
@@ -37,5 +37,5 @@ GET /api/tickets/{n}/description: banco; se ausente → Tiflux ao vivo (como hoj
 - [x] 2. `DescriptionSync` + `DescriptionStore` (`pending_descriptions`, `save_description`, `description_progress`) + ciclo com prazo no runner. Done: testes com fakes (ordem, retomada sem refazer, rebusca após alteração, 404, falha isolada, para no prazo) e teste do store contra o Postgres.
 - [x] 3. Exportação: coluna "Descrição" (texto limpo, corte no XLSX) na lista de chamados. Done: testes de query/exportação/rota; arquivo real aberto com a coluna.
 - [x] 4. `/description` lê do banco com fallback ao vivo. Done: teste de rota (banco, ausente → Tiflux).
-- [ ] 5. Subir e acompanhar: rebuild do `sync`/`api`, log de progresso, reinício no meio para provar a retomada. Done: contagem continua após o restart; chamado novo aparece normalmente.
+- [x] 5. Subir e acompanhar: rebuild do `sync`/`api`, log de progresso, reinício no meio para provar a retomada. Done: contagem continua após o restart; chamado novo aparece normalmente.
 - [ ] 6. Docs + verificação: ARCHITECTURE, LOG, HANDOFF; pytest + ruff + build; os 10 critérios. Done: tudo verde.
