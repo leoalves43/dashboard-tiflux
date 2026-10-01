@@ -1,4 +1,7 @@
 .env
+# any local env variant (e.g. .env.local.env) may hold the Tiflux token; only the example is versioned
+.env.*
+!.env.example
 node_modules/
 dist/
 __pycache__/
