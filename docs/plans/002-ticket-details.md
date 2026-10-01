@@ -29,7 +29,7 @@ click ─> GET /api/tickets/{n}           (resumo na hora)
 ## Tarefas
 - [x] 1. Backend — resumo: `ticket_detail.ticket_summary(conn, n)` + `GET /api/tickets/{n}` (404 se não existir). Done: testes contra o Postgres de teste verdes.
 - [x] 2. Backend — atividade e descrição ao vivo: `ticket_activity.load_activity` / `load_description` + `GET /api/tickets/{n}/activity` e `/description` + `TifluxClient` no app. Done: testes com fakes (ordem, tipos, anexos, vazio, 404, erro) verdes; campos conferidos com um chamado real.
-- [ ] 3. Frontend — tipos, cliente da API e `richText`. Done: teste do Vitest verde.
+- [x] 3. Frontend — tipos, cliente da API e `richText`. Done: teste do Vitest verde.
 - [ ] 4. Frontend — `TicketFields` + `TicketHoverCard` + hover na `TicketTable`. Done: hover com os 9 campos verificado no navegador.
 - [ ] 5. Frontend — `TicketModal` (campos, anexos, linha do tempo, carregando/vazio/erro, Esc/fora/botão, foco volta) + clique. Done: verificado no navegador.
 - [ ] 6. Frontend — tabela de chamados no fim de `BreakdownPage`. Done: as 7 visões têm lista com hover e clique.

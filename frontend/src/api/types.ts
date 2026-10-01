@@ -107,3 +107,42 @@ export interface SyncStatus {
   tickets: number;
   last_write: string | null;
 }
+
+/** Local fields shown in the hover card and the modal header (GET /api/tickets/{n}). */
+export interface TicketSummary {
+  ticket_number: number;
+  title: string | null;
+  situation: Situation;
+  requestor_name: string | null;
+  requestor_email: string | null;
+  client_name: string | null;
+  desk_name: string | null;
+  priority_name: string | null;
+  status_name: string | null;
+  stage_name: string | null;
+  responsible_name: string | null;
+  created_at: string | null;
+}
+
+export interface TicketFile {
+  id: number;
+  file_name: string | null;
+  content_type: string | null;
+  size: number | null;
+  url: string | null;
+}
+
+export interface TicketFollowup {
+  kind: "answer" | "internal";
+  id: number;
+  author: string | null;
+  created_at: string | null;
+  text: string | null;
+  files: TicketFile[];
+}
+
+/** Live from Tiflux (GET /api/tickets/{n}/activity), not stored locally. */
+export interface TicketActivity {
+  files: TicketFile[];
+  followups: TicketFollowup[];
+}
