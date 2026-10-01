@@ -27,8 +27,7 @@ def _sla(solve: str | None = None, stage: str | None = None, solved: str | None 
 CLOSED = {"is_closed": True, "status": {"id": 9, "name": "Closed"}}
 SEED = [
     # A: open, 10 days past solve deadline, stage 1 day past
-    make_ticket(1, "2026-09-10T12:00:00Z", sla_info=_sla("2026-09-19T12:00:00Z", "2026-09-28T12:00:00Z"),
-                description="<p>Impressora não imprime</p>"),
+    make_ticket(1, "2026-09-10T12:00:00Z", sla_info=_sla("2026-09-19T12:00:00Z", "2026-09-28T12:00:00Z")),
     # B: open, on time, other desk/client, no responsible
     make_ticket(2, "2026-09-25T12:00:00Z", sla_info=_sla("2026-10-05T12:00:00Z"), responsible=None,
                 desk={"id": 11, "name": "INFRA"}, client={"id": 21, "name": "Cliente B"}),

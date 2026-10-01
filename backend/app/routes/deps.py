@@ -12,6 +12,7 @@ from app.filters import TicketFilters
 from app.queries.overview import Granularity
 from app.queries.ticket_list import SortDirection
 from app.sla import QueryContext
+from app.tiflux.client import TifluxSource
 
 
 def get_settings(request: Request) -> Settings:
@@ -28,7 +29,12 @@ def get_context(settings: Annotated[Settings, Depends(get_settings)]) -> QueryCo
     return QueryContext(now=datetime.now(UTC), timezone=settings.tz)
 
 
+def get_tiflux_source(request: Request) -> TifluxSource:
+    return request.app.state.tiflux
+
+
 Conn = Annotated[Connection, Depends(get_connection)]
+Tiflux = Annotated[TifluxSource, Depends(get_tiflux_source)]
 Ctx = Annotated[QueryContext, Depends(get_context)]
 Filters = Annotated[TicketFilters, Query()]
 

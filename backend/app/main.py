@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from app.config import Settings
 from app.db import build_engine, ensure_schema
 from app.routes import dashboard, exports
+from app.tiflux.client import TifluxClient
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -20,6 +21,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ensure_schema(engine, resolved.schema_name)
         app.state.settings = resolved
         app.state.engine = engine
+        # Only the ticket modal's live activity uses it; the token never leaves the server.
+        app.state.tiflux = TifluxClient(resolved.url_tiflux, resolved.token_tiflux)
         yield
         engine.dispose()
 

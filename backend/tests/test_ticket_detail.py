@@ -3,11 +3,10 @@ from sqlalchemy import Engine
 from app.queries.ticket_detail import ticket_summary
 
 
-def test_ticket_summary_reads_columns_and_raw_description(engine: Engine) -> None:
+def test_ticket_summary_reads_local_columns(engine: Engine) -> None:
     with engine.connect() as conn:
         summary = ticket_summary(conn, 1)
     assert summary is not None
-    assert summary["description"] == "<p>Impressora não imprime</p>"
     assert (summary["requestor_name"], summary["client_name"], summary["desk_name"]) == ("Fulano", "Cliente A", "SUPORTE")
     assert (summary["status_name"], summary["stage_name"], summary["priority_name"]) == ("Aberto", "Pendente", "Alta")
     assert summary["responsible_name"] == "Técnico X"

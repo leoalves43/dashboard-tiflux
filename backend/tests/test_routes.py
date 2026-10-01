@@ -10,7 +10,9 @@ from sqlalchemy import Engine
 
 from app.config import Settings
 from app.main import create_app
+from app.routes.deps import get_tiflux_source
 from tests.conftest import TEST_SCHEMA
+from tests.fakes import FakeActivitySource
 
 
 @pytest.fixture(scope="module")
@@ -68,3 +70,20 @@ def test_bucket_export(client: TestClient) -> None:
 def test_ticket_summary_route_returns_404_for_unknown_ticket(client: TestClient) -> None:
     assert client.get("/api/tickets/999999").status_code == 404
     assert client.get("/api/tickets/1").json()["ticket_number"] == 1
+
+
+@pytest.mark.parametrize(("source", "status"), [
+    (FakeActivitySource(lists={}), 200),
+    (FakeActivitySource(lists={}, missing=True), 404),
+    (FakeActivitySource(lists={}, failing=True), 502),
+])
+def test_ticket_activity_route_maps_tiflux_outcomes(client: TestClient, source: FakeActivitySource,
+                                                    status: int) -> None:
+    client.app.dependency_overrides[get_tiflux_source] = lambda: source  # type: ignore[attr-defined]
+    try:
+        responses = [client.get(f"/api/tickets/7/{part}") for part in ("activity", "description")]
+    finally:
+        client.app.dependency_overrides.clear()  # type: ignore[attr-defined]
+    # description of a ticket with no detail payload is 404 in the fake, so only check failure statuses there
+    assert responses[0].status_code == status, responses[0].text
+    assert responses[1].status_code == (404 if status == 200 else status), responses[1].text

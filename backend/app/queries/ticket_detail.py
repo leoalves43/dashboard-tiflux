@@ -1,4 +1,7 @@
-"""One ticket's summary for the hover card and the detail modal (local data only)."""
+"""One ticket's summary for the hover card and the detail modal (local data only).
+
+The description is not here: Tiflux list payloads omit it, so it is read live (app.ticket_activity).
+"""
 
 from sqlalchemy import Connection, select
 
@@ -13,9 +16,7 @@ SUMMARY_COLUMNS = (
 
 
 def ticket_summary(conn: Connection, ticket_number: int) -> PlainRow | None:
-    """Example: ticket_summary(conn, 363996) -> {"ticket_number": 363996, "description": "...", ...} or None."""
-    # The Tiflux list payload already carries the description, so raw holds it for every synced ticket.
-    description = t.c.raw["description"].astext.label("description")
-    query = select(*SUMMARY_COLUMNS, description).where(t.c.ticket_number == ticket_number)
+    """Example: ticket_summary(conn, 363996) -> {"ticket_number": 363996, "client_name": "...", ...} or None."""
+    query = select(*SUMMARY_COLUMNS).where(t.c.ticket_number == ticket_number)
     row = conn.execute(query).mappings().first()
     return to_plain(row) if row else None

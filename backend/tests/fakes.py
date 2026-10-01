@@ -7,7 +7,7 @@ from typing import Any
 import httpx
 from sqlalchemy import Table
 
-from app.tiflux.client import PAGE_SIZE, JsonObject, Page
+from app.tiflux.client import PAGE_SIZE, JsonObject, Page, TifluxApiError, TifluxNotFound
 
 
 class FakeTifluxHttp:
@@ -117,3 +117,35 @@ class FixedClock:
 
     def __call__(self) -> datetime:
         return self.moment
+
+
+class FakeActivitySource:
+    """Tiflux for one ticket's activity: list payloads by path, detail payloads by path, optional failure."""
+
+    def __init__(self, lists: dict[str, list[JsonObject]], details: dict[str, JsonObject] | None = None,
+                 missing: bool = False, failing: bool = False) -> None:
+        self._lists = lists
+        self._details = details or {}
+        self._missing = missing
+        self._failing = failing
+        self.calls: list[str] = []
+
+    def _guard(self, path: str) -> None:
+        self.calls.append(path)
+        if self._missing:
+            raise TifluxNotFound(f"GET {path} -> 404")
+        if self._failing:
+            raise TifluxApiError(f"GET {path} -> 503")
+
+    def fetch_page(self, path: str, params: dict[str, str | int]) -> Page:
+        self._guard(path)
+        items = self._lists.get(path, [])
+        return Page(items=items, total=len(items))
+
+    def iter_pages(self, path: str, params: dict[str, str | int]) -> Iterator[list[JsonObject]]:
+        self._guard(path)
+        yield self._lists.get(path, [])
+
+    def fetch_one(self, path: str) -> JsonObject | None:
+        self._guard(path)
+        return self._details.get(path)

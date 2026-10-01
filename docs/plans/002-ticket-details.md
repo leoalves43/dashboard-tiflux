@@ -4,7 +4,8 @@ Spec: docs/specs/002-ticket-details.md. Hover e modal carregam os dados do chama
 
 ## Arquitetura (delta)
 ```
-hover ─> GET /api/tickets/{n}           ─> Postgres (colunas + raw->>'description', raw requestor)   sem Tiflux
+hover ─> GET /api/tickets/{n}             ─> Postgres (8 campos, na hora)
+      └> GET /api/tickets/{n}/description ─> api ─> Tiflux /tickets/{n} (a listagem não traz a descrição)
 click ─> GET /api/tickets/{n}           (resumo na hora)
       └> GET /api/tickets/{n}/activity  ─> api ─> Tiflux: /files, /answers, /internal_communications
                                                    (+ /answers/{id} ou /internal_communications/{id} quando files_count > 0)
@@ -27,7 +28,7 @@ click ─> GET /api/tickets/{n}           (resumo na hora)
 
 ## Tarefas
 - [x] 1. Backend — resumo: `ticket_detail.ticket_summary(conn, n)` + `GET /api/tickets/{n}` (404 se não existir). Done: testes contra o Postgres de teste verdes.
-- [ ] 2. Backend — atividade ao vivo: `ticket_activity.load_activity(source, n)` + `GET /api/tickets/{n}/activity` + `TifluxClient` no app. Done: testes com fakes (ordem, tipos, anexos, vazio, 404, erro) verdes; campos conferidos com um chamado real.
+- [x] 2. Backend — atividade e descrição ao vivo: `ticket_activity.load_activity` / `load_description` + `GET /api/tickets/{n}/activity` e `/description` + `TifluxClient` no app. Done: testes com fakes (ordem, tipos, anexos, vazio, 404, erro) verdes; campos conferidos com um chamado real.
 - [ ] 3. Frontend — tipos, cliente da API e `richText`. Done: teste do Vitest verde.
 - [ ] 4. Frontend — `TicketFields` + `TicketHoverCard` + hover na `TicketTable`. Done: hover com os 9 campos verificado no navegador.
 - [ ] 5. Frontend — `TicketModal` (campos, anexos, linha do tempo, carregando/vazio/erro, Esc/fora/botão, foco volta) + clique. Done: verificado no navegador.

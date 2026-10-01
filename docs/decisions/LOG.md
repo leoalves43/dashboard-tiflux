@@ -10,3 +10,4 @@
 2026-10-01 | De-para EN->pt-BR of Tiflux default status/stage/priority names at ingestion (app/sync/translations.py); sync start rewrites legacy rows | dashboard all in Portuguese; raw keeps original | -
 2026-10-01 | Visual refresh: cool-tinted surfaces, brand gradient, KPI tones, table pills (DESIGN.md "Color accents") | user asked for a more colorful UI; data colors unchanged and re-validated | neutral gray surfaces; dark ordinal ramp 300→600 (failed adjacent ΔL)
 2026-10-01 | Ticket modal reads follow-ups/attachments live from Tiflux (via api), not stored | project runs on a local PC; storing all history costs a ~3-day backfill. Revisit (store everything) if moved to a server | -
+2026-10-01 | Ticket description also read live (GET /tickets/{n}) for hover/modal | Tiflux list payload omits description (0 of 164,623 rows have it); storing needs ~164k detail calls (~23 h) | spec 002 'hover never calls Tiflux'
