@@ -33,4 +33,4 @@ click ─> GET /api/tickets/{n}           (resumo na hora)
 - [x] 4. Frontend — `TicketFields` + `TicketHoverCard` + hover na `TicketTable`. Done: hover com os 9 campos verificado no navegador.
 - [x] 5. Frontend — `TicketModal` (campos, anexos, linha do tempo, carregando/vazio/erro, Esc/fora/botão, foco volta) + clique. Done: verificado no navegador.
 - [x] 6. Frontend — tabela de chamados no fim de `BreakdownPage`. Done: as 7 visões têm lista com hover e clique.
-- [ ] 7. Docs + verificação: DESIGN.md, ARCHITECTURE.md, HANDOFF; pytest + ruff + build do web; os 9 critérios da spec conferidos. Done: tudo verde.
+- [x] 7. Docs + verificação: DESIGN.md, ARCHITECTURE.md, HANDOFF; pytest + ruff + build do web; os 9 critérios da spec conferidos. Done: tudo verde.
