@@ -12,7 +12,7 @@ Ver o conteúdo de um chamado sem sair do dashboard: um resumo ao passar o mouse
 - O modal fecha com Esc, com o botão fechar ou com um clique fora; o foco volta ao chamado de onde ele foi aberto.
 
 ## Constraints
-- 8 campos do resumo vêm do nosso banco e aparecem na hora. A descrição não vem na listagem do Tiflux, então é lida ao vivo (1 requisição, com cache) quando o hover aparece ou no clique.
+- 8 campos do resumo vêm do nosso banco e aparecem na hora. A descrição não vem na listagem do Tiflux: vem do banco (copiada pelo sync, spec 003) e, se ainda não copiada, ao vivo (1 requisição, com cache).
 - Follow-ups (respostas + comunicações internas) e anexos são lidos do Tiflux pelo backend ao abrir o modal, sem guardar nada no banco. O token nunca chega ao navegador. (Projeto roda localmente; se for para um servidor, passa a guardar tudo no banco; ver LOG.)
 - Limite da API: 120 req/min, compartilhado com o sincronizador. Cada abertura de modal custa 3 requisições + 1 por follow-up com anexo.
 - Descrição e textos podem conter HTML do Tiflux: exibir sem executar scripts.
@@ -31,6 +31,6 @@ Ver o conteúdo de um chamado sem sair do dashboard: um resumo ao passar o mouse
 
 ## Out of scope
 - Editar, responder, fechar ou reabrir chamados.
-- Guardar descrição, follow-ups ou anexos no banco (fase de servidor, futura; ver HANDOFF NEXT).
+- Guardar comunicações ou anexos no banco (fase de servidor, futura; ver HANDOFF NEXT). A descrição passou a ser guardada (spec 003).
 - Baixar anexos via backend (o link do Tiflux é usado diretamente; pode expirar).
 - Hover ou modal a partir de barras dos gráficos (que continuam filtrando o painel).

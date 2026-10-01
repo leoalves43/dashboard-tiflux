@@ -13,3 +13,4 @@
 2026-10-01 | Ticket description also read live (GET /tickets/{n}) for hover/modal | Tiflux list payload omits description (0 of 164,623 rows have it); storing needs ~164k detail calls (~23 h) | spec 002 'hover never calls Tiflux'
 2026-10-01 | nginx: index.html no-cache, /assets/ immutable 1y | browsers kept the old bundle after rebuilds; Vite fingerprints assets | -
 2026-10-01 | nginx re-resolves `api` via Docker DNS (resolver 127.0.0.11 + variable proxy_pass) | recreating the api container changed its IP and every /api call returned 502 until web restarted | literal proxy_pass http://api:8000
+2026-10-01 | Store ticket descriptions in ticket_descriptions, filled in the spare time of each sync cycle (spec 003) | export needs it for all tickets; ~190 MB; resumable across notebook sleep/restarts | description read live only (2026-10-01)

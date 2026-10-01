@@ -38,4 +38,4 @@ GET /api/tickets/{n}/description: banco; se ausente → Tiflux ao vivo (como hoj
 - [x] 3. Exportação: coluna "Descrição" (texto limpo, corte no XLSX) na lista de chamados. Done: testes de query/exportação/rota; arquivo real aberto com a coluna.
 - [x] 4. `/description` lê do banco com fallback ao vivo. Done: teste de rota (banco, ausente → Tiflux).
 - [x] 5. Subir e acompanhar: rebuild do `sync`/`api`, log de progresso, reinício no meio para provar a retomada. Done: contagem continua após o restart; chamado novo aparece normalmente.
-- [ ] 6. Docs + verificação: ARCHITECTURE, LOG, HANDOFF; pytest + ruff + build; os 10 critérios. Done: tudo verde.
+- [x] 6. Docs + verificação: ARCHITECTURE, LOG, HANDOFF; pytest + ruff + build; os 10 critérios. Done: tudo verde.
