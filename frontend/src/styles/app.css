@@ -134,15 +134,13 @@ tr.ticket-row { cursor: pointer; }
 .field-value { color: var(--ink-1); font-size: var(--fs-sm); overflow-wrap: anywhere; }
 .description { white-space: pre-wrap; font-size: var(--fs-sm); color: var(--ink-2); margin-top: var(--sp-3); overflow-wrap: anywhere; }
 .hovercard .description { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
-.modal-backdrop {
-  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: var(--sp-4);
-  background: color-mix(in srgb, var(--ink-1) 45%, transparent);
-}
 .modal {
-  width: 880px; max-width: 100%; max-height: 90vh; overflow: auto;
+  width: 880px; max-width: calc(100vw - 2 * var(--sp-4)); max-height: 90vh; overflow: auto; color: var(--ink-1);
   background: var(--brand-gradient) top / 100% 3px no-repeat local, var(--surface);
   border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--sp-4) var(--sp-6);
 }
+.modal::backdrop { background: color-mix(in srgb, var(--ink-1) 45%, transparent); }
+tr.ticket-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .modal .ticket-head .btn { margin-left: auto; }
 .modal-section { margin-top: var(--sp-6); }
 .modal-section h3 { font-size: var(--fs-md); margin: 0 0 var(--sp-2); }

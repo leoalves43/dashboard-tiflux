@@ -19,13 +19,22 @@ const FIELDS: { label: string; value: (t: TicketSummary) => string }[] = [
   { label: "Aberto em", value: (t) => fmtDateTime(t.created_at) },
 ];
 
-/** Nº + título + situação; `action` sits at the far right (e.g. the modal's close button). */
-export function TicketHeader({ summary, action }: { summary: TicketSummary; action?: ReactNode }) {
+interface TicketHeaderProps {
+  ticketNumber: number;
+  summary: TicketSummary | undefined;
+  action?: ReactNode;
+}
+
+/**
+ * Nº + título + situação; `action` sits at the far right (e.g. the modal's close button).
+ * Same element tree while loading, so a focused `action` survives the summary arriving.
+ */
+export function TicketHeader({ ticketNumber, summary, action }: TicketHeaderProps) {
   return (
     <div className="ticket-head">
-      <span className="ticket-number">#{summary.ticket_number}</span>
-      <h2 className="ticket-title">{summary.title ?? "(sem título)"}</h2>
-      <Pill tone={SITUATION_COLOR[summary.situation]}>{SITUATION_LABEL[summary.situation]}</Pill>
+      <span className="ticket-number">#{ticketNumber}</span>
+      <h2 className="ticket-title">{summary ? summary.title ?? "(sem título)" : "Carregando…"}</h2>
+      {summary && <Pill tone={SITUATION_COLOR[summary.situation]}>{SITUATION_LABEL[summary.situation]}</Pill>}
       {action}
     </div>
   );

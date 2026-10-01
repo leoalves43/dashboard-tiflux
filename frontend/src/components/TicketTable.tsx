@@ -5,6 +5,7 @@ import { useFetch } from "../api/useFetch";
 import { fmtDateTime, fmtDecimal, fmtDuration, fmtInt, SITUATION_COLOR, SITUATION_LABEL, SLA_COLOR, SLA_LABEL } from "../format";
 import { Pill } from "./Pill";
 import { TicketHoverCard, useTicketHover } from "./TicketHoverCard";
+import { TicketModal } from "./TicketModal";
 import { Card, ExportButtons } from "./Card";
 
 interface Column {
@@ -60,6 +61,11 @@ export function TicketTable({ title, subtitle, filters, defaultSort = { sort: "c
     ...q, page: 1, sort: key, direction: q.sort === key && q.direction === "desc" ? "asc" : "desc",
   }));
   const hover = useTicketHover();
+  const [openTicket, setOpenTicket] = useState<number | null>(null);
+  const open = (ticketNumber: number) => {
+    hover.cancel();
+    setOpenTicket(ticketNumber);
+  };
   const arrow = (key: string) => (query.sort === key ? (query.direction === "desc" ? " ↓" : " ↑") : "");
 
   return (
@@ -75,7 +81,8 @@ export function TicketTable({ title, subtitle, filters, defaultSort = { sort: "c
           </thead>
           <tbody>
             {data?.rows.map((row) => (
-              <tr key={row.ticket_number} className="ticket-row" {...hover.rowProps(row.ticket_number)}>
+              <tr key={row.ticket_number} className="ticket-row" tabIndex={0} {...hover.rowProps(row.ticket_number)}
+                onClick={() => open(row.ticket_number)} onKeyDown={(e) => e.key === "Enter" && open(row.ticket_number)}>
                 {COLUMNS.map((c) => (
                   <td key={c.key} className={c.numeric ? "num" : c.wrap ? "wrap" : undefined}>{c.render(row)}</td>
                 ))}
@@ -86,6 +93,7 @@ export function TicketTable({ title, subtitle, filters, defaultSort = { sort: "c
         </table>
       </div>
       {hover.target && <TicketHoverCard {...hover.target} />}
+      {openTicket !== null && <TicketModal ticketNumber={openTicket} onClose={() => setOpenTicket(null)} />}
       <div className="pager">
         <button type="button" className="btn" disabled={query.page <= 1} onClick={() => setQuery((q) => ({ ...q, page: q.page - 1 }))}>Anterior</button>
         <span className="muted">Página {query.page} de {fmtInt(pages)}</span>

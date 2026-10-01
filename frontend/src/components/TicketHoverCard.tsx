@@ -60,7 +60,7 @@ export function TicketHoverCard({ ticketNumber, x, y }: HoverTarget) {
     <div className="hovercard" role="tooltip" style={cardPosition(x, y)}>
       {summary.data ? (
         <>
-          <TicketHeader summary={summary.data} />
+          <TicketHeader ticketNumber={ticketNumber} summary={summary.data} />
           <TicketFields summary={summary.data} />
           <TicketDescription ticketNumber={ticketNumber} />
         </>

@@ -41,7 +41,21 @@ export function fmtDuration(hours: number | null | undefined): string {
   return hours >= 48 ? `${decimalFormat.format(hours / 24)} d` : `${decimalFormat.format(hours)} h`;
 }
 
-const monthFormat = new Intl.DateTimeFormat("pt-BR", { month: "short", year: "numeric", timeZone: "UTC" });
+const BYTE_UNITS = ["B", "KB", "MB", "GB"];
+
+/** Attachment sizes: fmtBytes(101411) === "99,0 KB". */
+export function fmtBytes(bytes: number | null | undefined): string {
+  if (bytes === null || bytes === undefined) return "–";
+  let value = bytes;
+  let unit = 0;
+  while (value >= 1024 && unit < BYTE_UNITS.length - 1) {
+    value /= 1024;
+    unit += 1;
+  }
+  return unit === 0 ? `${value} B` : `${decimalFormat.format(value)} ${BYTE_UNITS[unit]}`;
+}
+
+const monthFormat =new Intl.DateTimeFormat("pt-BR", { month: "short", year: "numeric", timeZone: "UTC" });
 const dayFormat = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", timeZone: "UTC" });
 
 /** Axis label for a YYYY-MM-DD period start: "set. de 2026" for months, "29/09/26" otherwise. */
