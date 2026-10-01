@@ -1,16 +1,19 @@
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { api } from "../api/client";
 import type { TicketActivity, TicketFile, TicketFollowup } from "../api/types";
 import { useFetch } from "../api/useFetch";
 import { fmtBytes, fmtDateTime } from "../format";
 import { htmlToText } from "../richText";
-import { Pill } from "./Pill";
 import { TicketDescription, TicketFields, TicketHeader } from "./TicketFields";
 
-const FOLLOWUP_STYLE: Record<TicketFollowup["kind"], { label: string; tone: string }> = {
-  answer: { label: "Resposta", tone: "var(--series-1)" },
-  internal: { label: "Interna", tone: "var(--series-4)" },
+type CommunicationKind = TicketFollowup["kind"];
+
+// Public = answers exchanged with the client; internal = notes between technicians (as tabs in Tiflux).
+const COMMUNICATION_STYLE: Record<CommunicationKind, { tab: string; empty: string; tone: string }> = {
+  answer: { tab: "Pública", empty: "Nenhuma comunicação pública.", tone: "var(--series-1)" },
+  internal: { tab: "Interna", empty: "Nenhuma comunicação interna.", tone: "var(--series-4)" },
 };
+const COMMUNICATION_KINDS: CommunicationKind[] = ["answer", "internal"];
 
 function FileList({ files }: { files: TicketFile[] }) {
   return (
@@ -25,18 +28,39 @@ function FileList({ files }: { files: TicketFile[] }) {
   );
 }
 
-function FollowupItem({ followup }: { followup: TicketFollowup }) {
-  const style = FOLLOWUP_STYLE[followup.kind];
+function CommunicationItem({ followup }: { followup: TicketFollowup }) {
   return (
-    <article className="followup" style={{ "--tone": style.tone } as CSSProperties}>
+    <article className="followup" style={{ "--tone": COMMUNICATION_STYLE[followup.kind].tone } as CSSProperties}>
       <div className="followup-head">
-        <Pill tone={style.tone}>{style.label}</Pill>
         <span className="followup-author">{followup.author ?? "–"}</span>
         <span className="muted">{fmtDateTime(followup.created_at)}</span>
       </div>
       <div className="description">{htmlToText(followup.text) || "(sem texto)"}</div>
       {followup.files.length > 0 && <FileList files={followup.files} />}
     </article>
+  );
+}
+
+function Communications({ followups }: { followups: TicketFollowup[] }) {
+  const [kind, setKind] = useState<CommunicationKind>("answer");
+  const shown = followups.filter((f) => f.kind === kind);
+  const count = (k: CommunicationKind) => followups.filter((f) => f.kind === k).length;
+  return (
+    <section className="modal-section">
+      <div className="card-head">
+        <h3>Comunicações</h3>
+        <div className="card-actions" role="group" aria-label="Tipo de comunicação">
+          {COMMUNICATION_KINDS.map((k) => (
+            <button key={k} type="button" className="btn" aria-pressed={kind === k} onClick={() => setKind(k)}>
+              {COMMUNICATION_STYLE[k].tab} ({count(k)})
+            </button>
+          ))}
+        </div>
+      </div>
+      {shown.length ? (
+        <div className="timeline">{shown.map((f) => <CommunicationItem key={f.id} followup={f} />)}</div>
+      ) : <p className="muted">{COMMUNICATION_STYLE[kind].empty}</p>}
+    </section>
   );
 }
 
@@ -47,21 +71,16 @@ function ActivityContent({ activity }: { activity: TicketActivity }) {
         <h3>Anexos ({activity.files.length})</h3>
         {activity.files.length ? <FileList files={activity.files} /> : <p className="muted">Nenhum anexo.</p>}
       </section>
-      <section className="modal-section">
-        <h3>Follow-ups ({activity.followups.length})</h3>
-        {activity.followups.length ? (
-          <div className="timeline">{activity.followups.map((f) => <FollowupItem key={`${f.kind}-${f.id}`} followup={f} />)}</div>
-        ) : <p className="muted">Nenhum follow-up.</p>}
-      </section>
+      <Communications followups={activity.followups} />
     </>
   );
 }
 
-/** Attachments + follow-ups, live from Tiflux on every open (not cached, so new answers show up). */
+/** Attachments + communications, live from Tiflux on every open (not cached, so new answers show up). */
 function TicketActivitySections({ ticketNumber }: { ticketNumber: number }) {
   const result = useFetch((signal) => api.ticketActivity(ticketNumber, signal), String(ticketNumber));
-  if (result.error) return <p className="error modal-section">Não foi possível carregar anexos e follow-ups do Tiflux.</p>;
-  if (!result.data) return <p className="muted modal-section">Carregando anexos e follow-ups do Tiflux…</p>;
+  if (result.error) return <p className="error modal-section">Não foi possível carregar anexos e comunicações do Tiflux.</p>;
+  if (!result.data) return <p className="muted modal-section">Carregando anexos e comunicações do Tiflux…</p>;
   return <ActivityContent activity={result.data} />;
 }
 

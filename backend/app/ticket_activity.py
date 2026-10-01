@@ -31,7 +31,9 @@ def _author(kind: FollowupKind, item: JsonObject) -> str | None:
     if kind == "answer":
         return item.get("author")
     user = item.get("user")
-    return user.get("name") if isinstance(user, dict) else None
+    name = user.get("name") if isinstance(user, dict) else None
+    # Comments synced from GitHub/Jira come with an empty user (seen on ticket 364000, 2026-10-01).
+    return name or item.get("github_username") or item.get("jira_username")
 
 
 def map_followup(kind: FollowupKind, item: JsonObject, files: list[JsonObject]) -> ActivityItem:

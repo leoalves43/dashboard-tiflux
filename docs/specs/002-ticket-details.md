@@ -8,7 +8,7 @@ Ver o conteúdo de um chamado sem sair do dashboard: um resumo ao passar o mouse
 - Passar o mouse sobre um chamado da lista mostra um cartão com: solicitante, cliente, mesa, prioridade, status, estágio, técnico responsável, data de abertura e descrição.
 - Clicar num chamado abre um modal com os mesmos campos e mais:
   - anexos do chamado (nome, tipo, tamanho, link para abrir);
-  - follow-ups numa linha do tempo única: respostas ao cliente e comunicações internas, em ordem cronológica, cada item com tipo, autor, data, texto e anexos.
+  - seção "Comunicações" com a pública (respostas ao cliente) e a interna separadas, como na interface do Tiflux; cada uma em ordem cronológica, com autor, data, texto e anexos.
 - O modal fecha com Esc, com o botão fechar ou com um clique fora; o foco volta ao chamado de onde ele foi aberto.
 
 ## Constraints
@@ -21,8 +21,8 @@ Ver o conteúdo de um chamado sem sair do dashboard: um resumo ao passar o mouse
 ## Acceptance criteria
 1. Em cada uma das 7 visões existe uma lista de chamados paginada e filtrada pelos filtros ativos.
 2. O cartão de hover aparece após uma breve pausa do mouse sobre a linha (sem piscar ao percorrer a lista) e mostra os 9 campos do resumo. Campo vazio aparece como "–".
-3. O clique abre o modal com os 9 campos, a lista de anexos e a linha do tempo de follow-ups (respostas + comunicações internas), com rótulos em português.
-4. Chamado sem anexos ou sem follow-ups mostra "Nenhum anexo" / "Nenhum follow-up".
+3. O clique abre o modal com os 9 campos, a lista de anexos e a seção "Comunicações" com pública e interna separadas (com contagem), com rótulos em português.
+4. Chamado sem anexos ou sem comunicações mostra "Nenhum anexo." / "Nenhuma comunicação pública." / "Nenhuma comunicação interna."
 5. Falha ao consultar o Tiflux mostra um aviso só na parte de anexos/follow-ups; o resumo continua visível.
 6. Esc, o botão fechar e o clique fora fecham o modal, e o foco volta à linha de origem.
 7. Nenhuma resposta do backend expõe o token, e HTML vindo do Tiflux não executa scripts.

@@ -1,6 +1,6 @@
 import pytest
 
-from app.ticket_activity import load_activity, load_description, map_file
+from app.ticket_activity import load_activity, load_description, map_file, map_followup
 from app.tiflux.client import TifluxNotFound
 from tests.fakes import FakeActivitySource
 
@@ -61,3 +61,9 @@ def test_load_description_reads_ticket_detail() -> None:
 def test_load_description_raises_when_ticket_is_gone() -> None:
     with pytest.raises(TifluxNotFound):
         load_description(FakeActivitySource(lists={}), 7)
+
+
+def test_internal_comment_from_github_uses_integration_username() -> None:
+    item = {"id": "5750181", "created_at": "2026-10-01T14:16:24Z", "files_count": "0", "text": "comentou",
+            "github_username": "geosiapcard[bot]", "jira_username": None, "user": {"id": None, "name": None}}
+    assert map_followup("internal", item, [])["author"] == "geosiapcard[bot]"
