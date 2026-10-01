@@ -11,3 +11,4 @@
 2026-10-01 | Visual refresh: cool-tinted surfaces, brand gradient, KPI tones, table pills (DESIGN.md "Color accents") | user asked for a more colorful UI; data colors unchanged and re-validated | neutral gray surfaces; dark ordinal ramp 300→600 (failed adjacent ΔL)
 2026-10-01 | Ticket modal reads follow-ups/attachments live from Tiflux (via api), not stored | project runs on a local PC; storing all history costs a ~3-day backfill. Revisit (store everything) if moved to a server | -
 2026-10-01 | Ticket description also read live (GET /tickets/{n}) for hover/modal | Tiflux list payload omits description (0 of 164,623 rows have it); storing needs ~164k detail calls (~23 h) | spec 002 'hover never calls Tiflux'
+2026-10-01 | nginx: index.html no-cache, /assets/ immutable 1y | browsers kept the old bundle after rebuilds; Vite fingerprints assets | -
