@@ -8,3 +8,4 @@
 2026-09-29 | Each sync cycle reconciles open tickets against filter_by=open and refetches/deletes the stale ones | closing/merging/deleting may not bump updated_at, so incremental alone can leave ghosts open | -
 2026-09-30 | Drop compose `db` service; use shared "Postgres" container via host.docker.internal | one Postgres for all projects | Postgres 18 db service in compose
 2026-10-01 | De-para EN->pt-BR of Tiflux default status/stage/priority names at ingestion (app/sync/translations.py); sync start rewrites legacy rows | dashboard all in Portuguese; raw keeps original | -
+2026-10-01 | Visual refresh: cool-tinted surfaces, brand gradient, KPI tones, table pills (DESIGN.md "Color accents") | user asked for a more colorful UI; data colors unchanged and re-validated | neutral gray surfaces; dark ordinal ramp 300→600 (failed adjacent ΔL)

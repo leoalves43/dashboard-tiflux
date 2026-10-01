@@ -12,6 +12,24 @@ const BAR_MAX_WIDTH = 24;
 const BAR_RADIUS_H: [number, number, number, number] = [0, 4, 4, 0]; // rounded data end, square baseline
 const BAR_RADIUS_V: [number, number, number, number] = [4, 4, 0, 0];
 
+const AREA_TOP_ALPHA = 0.25;
+
+/** "#rrggbb" + alpha -> "rgba(...)"; tokens are hex, ECharts gradients need per-stop alpha. Example: withAlpha("#2a78d6", 0.25) */
+export function withAlpha(hex: string, alpha: number): string {
+  const match = /^#([0-9a-f]{6})$/i.exec(hex);
+  if (!match) throw new Error(`withAlpha: color=${JSON.stringify(hex)}; expected "#rrggbb"`);
+  const value = parseInt(match[1], 16);
+  return `rgba(${value >> 16}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+}
+
+/** Vertical fade under a line: tone at 25% on top, transparent at the baseline. */
+function areaGradient(color: string) {
+  return {
+    type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1,
+    colorStops: [{ offset: 0, color: withAlpha(color, AREA_TOP_ALPHA) }, { offset: 1, color: withAlpha(color, 0) }],
+  };
+}
+
 function baseOption(theme: ChartTheme): ChartOption {
   return {
     backgroundColor: "transparent",
@@ -92,7 +110,7 @@ export function timeLines(theme: ChartTheme, periods: string[], series: BarSerie
     series: series.map((s) => ({
       type: "line", name: s.name, data: s.values, showSymbol: periods.length <= 40, symbolSize: 8,
       lineStyle: { width: 2, color: s.color }, itemStyle: { color: s.color, borderColor: theme.surface, borderWidth: 2 },
-      areaStyle: { color: s.color, opacity: 0.1 },
+      areaStyle: { color: areaGradient(s.color) },
     })),
   };
 }

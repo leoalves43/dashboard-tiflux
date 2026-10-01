@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { api, type TicketQuery } from "../api/client";
 import type { Filters, TicketRow } from "../api/types";
 import { useFetch } from "../api/useFetch";
-import { fmtDateTime, fmtDecimal, fmtDuration, fmtInt, SITUATION_LABEL, SLA_COLOR, SLA_LABEL } from "../format";
+import { fmtDateTime, fmtDecimal, fmtDuration, fmtInt, SITUATION_COLOR, SITUATION_LABEL, SLA_COLOR, SLA_LABEL } from "../format";
+import { Pill } from "./Pill";
 import { Card, ExportButtons } from "./Card";
 
 interface Column {
@@ -18,10 +19,8 @@ const text = (value: string | null) => value ?? "–";
 const COLUMNS: Column[] = [
   { key: "ticket_number", label: "Nº", numeric: true, render: (r) => r.ticket_number },
   { key: "title", label: "Título", wrap: true, render: (r) => text(r.title) },
-  { key: "situation", label: "Situação", render: (r) => SITUATION_LABEL[r.situation] },
-  { key: "sla_state", label: "SLA", render: (r) => (
-    <span className="badge"><span className="dot" style={{ background: SLA_COLOR[r.sla_state] }} aria-hidden="true" />{SLA_LABEL[r.sla_state]}</span>
-  ) },
+  { key: "situation", label: "Situação", render: (r) => <Pill tone={SITUATION_COLOR[r.situation]}>{SITUATION_LABEL[r.situation]}</Pill> },
+  { key: "sla_state", label: "SLA", render: (r) => <Pill tone={SLA_COLOR[r.sla_state]}>{SLA_LABEL[r.sla_state]}</Pill> },
   { key: "late_days", label: "Dias atraso", numeric: true, render: (r) => fmtDecimal(r.late_days) },
   { key: "stage_late_days", label: "Dias estágio vencido", numeric: true, render: (r) => fmtDecimal(r.stage_late_days) },
   { key: "client_name", label: "Cliente", render: (r) => text(r.client_name) },

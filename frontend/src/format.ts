@@ -11,6 +11,10 @@ export const SITUATION_LABEL: Record<Situation, string> = {
 export const SLA_LABEL: Record<SlaState, string> = {
   late: "Atrasado", on_time: "No prazo", no_sla: "Sem SLA",
 };
+/** CSS token per situation, following the series roles in DESIGN.md. */
+export const SITUATION_COLOR: Record<Situation, string> = {
+  open: "var(--series-1)", closed: "var(--series-3)", canceled: "var(--series-2)",
+};
 /** CSS token per SLA state (status colors are reserved for status — see DESIGN.md). */
 export const SLA_COLOR: Record<SlaState, string> = {
   late: "var(--critical)", on_time: "var(--good)", no_sla: "var(--neutral)",

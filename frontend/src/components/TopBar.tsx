@@ -33,7 +33,7 @@ function SyncBadge() {
 export function TopBar({ page, onPage }: { page: PageId; onPage: (page: PageId) => void }) {
   return (
     <header className="topbar">
-      <span className="brand">Dashboard Tiflux</span>
+      <span className="brand"><span className="brand-mark" aria-hidden="true">T</span>Dashboard Tiflux</span>
       <nav className="tabs" aria-label="Seções">
         {PAGES.map((p) => (
           <button key={p.id} type="button" className="tab" aria-current={p.id === page ? "page" : undefined} onClick={() => onPage(p.id)}>
