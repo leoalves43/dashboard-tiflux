@@ -4,6 +4,7 @@ import type { Filters, TicketRow } from "../api/types";
 import { useFetch } from "../api/useFetch";
 import { fmtDateTime, fmtDecimal, fmtDuration, fmtInt, SITUATION_COLOR, SITUATION_LABEL, SLA_COLOR, SLA_LABEL } from "../format";
 import { Pill } from "./Pill";
+import { TicketHoverCard, useTicketHover } from "./TicketHoverCard";
 import { Card, ExportButtons } from "./Card";
 
 interface Column {
@@ -58,6 +59,7 @@ export function TicketTable({ title, subtitle, filters, defaultSort = { sort: "c
   const sortBy = (key: string) => setQuery((q) => ({
     ...q, page: 1, sort: key, direction: q.sort === key && q.direction === "desc" ? "asc" : "desc",
   }));
+  const hover = useTicketHover();
   const arrow = (key: string) => (query.sort === key ? (query.direction === "desc" ? " ↓" : " ↑") : "");
 
   return (
@@ -73,7 +75,7 @@ export function TicketTable({ title, subtitle, filters, defaultSort = { sort: "c
           </thead>
           <tbody>
             {data?.rows.map((row) => (
-              <tr key={row.ticket_number}>
+              <tr key={row.ticket_number} className="ticket-row" {...hover.rowProps(row.ticket_number)}>
                 {COLUMNS.map((c) => (
                   <td key={c.key} className={c.numeric ? "num" : c.wrap ? "wrap" : undefined}>{c.render(row)}</td>
                 ))}
@@ -83,6 +85,7 @@ export function TicketTable({ title, subtitle, filters, defaultSort = { sort: "c
           </tbody>
         </table>
       </div>
+      {hover.target && <TicketHoverCard {...hover.target} />}
       <div className="pager">
         <button type="button" className="btn" disabled={query.page <= 1} onClick={() => setQuery((q) => ({ ...q, page: q.page - 1 }))}>Anterior</button>
         <span className="muted">Página {query.page} de {fmtInt(pages)}</span>

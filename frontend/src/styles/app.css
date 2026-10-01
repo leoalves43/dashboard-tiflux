@@ -117,3 +117,39 @@ tbody tr:nth-child(even) { background: color-mix(in srgb, var(--surface-2) 45%, 
 .badge { display: inline-flex; align-items: center; gap: var(--sp-1); }
 a { color: var(--accent); }
 a.btn { color: var(--ink-1); text-decoration: none; }
+
+/* ---------- ticket hover card & modal (DESIGN.md "Ticket hover card" / "Ticket modal") ---------- */
+tr.ticket-row { cursor: pointer; }
+.hovercard {
+  position: fixed; z-index: 40; width: 420px; max-width: calc(100vw - 2 * var(--sp-4)); pointer-events: none;
+  /* gradient stripe as a background layer keeps the rounded corners (border-image would square them) */
+  background: var(--brand-gradient) top / 100% 3px no-repeat, var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--sp-3) var(--sp-4);
+}
+.ticket-head { display: flex; align-items: flex-start; gap: var(--sp-2); }
+.ticket-number { color: var(--ink-3); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ticket-title { font-weight: 600; margin: 0; font-size: var(--fs-md); }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2) var(--sp-4); margin-top: var(--sp-3); }
+.field-label { color: var(--ink-3); font-size: var(--fs-xs); }
+.field-value { color: var(--ink-1); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.description { white-space: pre-wrap; font-size: var(--fs-sm); color: var(--ink-2); margin-top: var(--sp-3); overflow-wrap: anywhere; }
+.hovercard .description { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: var(--sp-4);
+  background: color-mix(in srgb, var(--ink-1) 45%, transparent);
+}
+.modal {
+  width: 880px; max-width: 100%; max-height: 90vh; overflow: auto;
+  background: var(--brand-gradient) top / 100% 3px no-repeat local, var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--sp-4) var(--sp-6);
+}
+.modal .ticket-head .btn { margin-left: auto; }
+.modal-section { margin-top: var(--sp-6); }
+.modal-section h3 { font-size: var(--fs-md); margin: 0 0 var(--sp-2); }
+.file-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-1); font-size: var(--fs-sm); }
+.file-meta { color: var(--ink-3); font-size: var(--fs-xs); margin-left: var(--sp-2); }
+.timeline { display: grid; gap: var(--sp-3); }
+.followup { --tone: var(--series-1); border-left: 3px solid var(--tone); padding: var(--sp-2) var(--sp-3); background: var(--surface-2); border-radius: 0 var(--radius) var(--radius) 0; }
+.followup-head { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; font-size: var(--fs-sm); }
+.followup-author { font-weight: 600; }
+.followup .description { margin-top: var(--sp-2); color: var(--ink-1); }
