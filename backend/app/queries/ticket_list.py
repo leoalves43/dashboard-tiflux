@@ -5,7 +5,6 @@ from typing import Any, Literal
 
 from sqlalchemy import ColumnElement, Connection, Select, func, select
 
-from app.db import ticket_descriptions as d
 from app.db import tickets as t
 from app.exporters import ExportColumn
 from app.filters import TicketFilters, filter_conditions
@@ -48,8 +47,6 @@ LIST_COLUMNS = (
     ExportColumn("resolution_hours", "Tempo resolução (h)"),
     ExportColumn("reopen_count", "Reaberturas"),
 )
-# Exports only: the description is long text the paged UI list never needs (spec 003).
-EXPORT_COLUMNS = (*LIST_COLUMNS, ExportColumn("description", "Descrição"))
 
 
 def _selectable_columns(ctx: QueryContext) -> dict[str, ColumnElement[Any]]:
@@ -90,10 +87,8 @@ def list_tickets(conn: Connection, filters: TicketFilters, ctx: QueryContext, *,
 
 def iter_all_tickets(conn: Connection, filters: TicketFilters, ctx: QueryContext, *, sort: str,
                      direction: SortDirection) -> Iterator[PlainRow]:
-    """Streams every filtered row (server-side cursor) for exports, with the stored description (HTML)."""
+    """Streams every filtered row (server-side cursor) for exports."""
     query, columns = _base_query(filters, ctx)
-    # LEFT JOIN: tickets whose description was not copied yet still export, with an empty cell.
-    query = query.add_columns(d.c.description).select_from(t.outerjoin(d, d.c.ticket_number == t.c.ticket_number))
     result = conn.execution_options(yield_per=EXPORT_BATCH_SIZE).execute(
         query.order_by(*_order(columns, sort, direction))
     )

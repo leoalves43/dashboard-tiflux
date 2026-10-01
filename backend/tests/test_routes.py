@@ -6,10 +6,9 @@ from collections.abc import Iterator
 import pytest
 from fastapi.testclient import TestClient
 from openpyxl import load_workbook
-from sqlalchemy import Engine, delete, insert
+from sqlalchemy import Engine
 
 from app.config import Settings
-from app.db import ticket_descriptions
 from app.main import create_app
 from app.routes.deps import get_tiflux_source
 from tests.conftest import TEST_SCHEMA
@@ -46,7 +45,6 @@ def test_ticket_export_matches_filtered_rows(client: TestClient) -> None:
     assert response.status_code == 200
     rows = list(load_workbook(io.BytesIO(response.content)).active.iter_rows(values_only=True))
     assert len(rows) == 1 + 3  # header + open tickets A, B, F
-    assert rows[0][-1] == "Descrição"
 
 
 def test_breakdown_export_csv(client: TestClient) -> None:
@@ -89,19 +87,3 @@ def test_ticket_activity_route_maps_tiflux_outcomes(client: TestClient, source: 
     # description of a ticket with no detail payload is 404 in the fake, so only check failure statuses there
     assert responses[0].status_code == status, responses[0].text
     assert responses[1].status_code == (404 if status == 200 else status), responses[1].text
-
-
-def test_description_route_prefers_the_stored_copy(client: TestClient, engine: Engine) -> None:
-    live = FakeActivitySource(lists={}, details={"/tickets/2": {"description": "<p>ao vivo</p>"}})
-    client.app.dependency_overrides[get_tiflux_source] = lambda: live  # type: ignore[attr-defined]
-    with engine.begin() as conn:
-        conn.execute(insert(ticket_descriptions).values(ticket_number=1, description="<p>do banco</p>"))
-    try:
-        stored = client.get("/api/tickets/1/description").json()
-        fallback = client.get("/api/tickets/2/description").json()
-    finally:
-        client.app.dependency_overrides.clear()  # type: ignore[attr-defined]
-        with engine.begin() as conn:
-            conn.execute(delete(ticket_descriptions))
-    assert stored == {"description": "<p>do banco</p>"} and fallback == {"description": "<p>ao vivo</p>"}
-    assert live.calls == ["/tickets/2"]

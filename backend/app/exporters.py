@@ -13,14 +13,9 @@ from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
 from openpyxl.worksheet.worksheet import Worksheet
 
-from app.rich_text import html_to_text
-
 ExportFormat = Literal["csv", "xlsx"]
 # Excel limits sheet titles to 31 characters.
 _SHEET_TITLE_MAX = 31
-# Excel's hard limit per cell; longer text would make openpyxl write a file Excel refuses to open.
-_XLSX_CELL_MAX = 32_767
-_CUT_MARK = "…(cortado)"
 SITUATION_LABELS = {"open": "Aberto", "closed": "Fechado", "canceled": "Cancelado"}
 SLA_LABELS = {"late": "Atrasado", "on_time": "No prazo", "no_sla": "Sem SLA"}
 
@@ -36,8 +31,6 @@ def _translate(key: str, value: Any) -> Any:
         return SITUATION_LABELS.get(value, value)
     if key == "sla_state":
         return SLA_LABELS.get(value, value)
-    if key == "description":
-        return html_to_text(value) or None
     return value
 
 
@@ -76,16 +69,10 @@ def write_xlsx(rows: Iterable[dict[str, Any]], columns: Sequence[ExportColumn], 
     sheet = workbook.create_sheet(title=title[:_SHEET_TITLE_MAX])
     _write_header(sheet, columns)
     for row in rows:
-        sheet.append([_fit_cell(_excel_value(col.key, row.get(col.key), timezone_name)) for col in columns])
+        sheet.append([_excel_value(col.key, row.get(col.key), timezone_name) for col in columns])
     buffer = io.BytesIO()
     workbook.save(buffer)
     return buffer.getvalue()
-
-
-def _fit_cell(value: Any) -> Any:
-    if isinstance(value, str) and len(value) > _XLSX_CELL_MAX:
-        return value[: _XLSX_CELL_MAX - len(_CUT_MARK)] + _CUT_MARK
-    return value
 
 
 def _write_header(sheet: Worksheet, columns: Sequence[ExportColumn]) -> None:

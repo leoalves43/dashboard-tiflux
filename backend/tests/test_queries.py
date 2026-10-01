@@ -1,9 +1,8 @@
 from datetime import date
 
 import pytest
-from sqlalchemy import Engine, delete, insert, inspect
+from sqlalchemy import Engine
 
-from app.db import ticket_descriptions
 from app.filters import TicketFilters
 from app.queries.breakdown import breakdown
 from app.queries.overview import aging_buckets, kpis, late_buckets, timeseries
@@ -71,19 +70,6 @@ def test_export_iterator_returns_every_filtered_row(engine: Engine, ctx: QueryCo
     assert [row["ticket_number"] for row in rows] == [3, 4]
 
 
-def test_export_iterator_joins_stored_descriptions(engine: Engine, ctx: QueryContext) -> None:
-    with engine.begin() as conn:
-        conn.execute(insert(ticket_descriptions).values(ticket_number=3, description="<p>Sem acesso</p>"))
-    try:
-        with engine.connect() as conn:
-            rows = list(iter_all_tickets(conn, TicketFilters(situations=["closed"]), ctx,
-                                         sort="created_at", direction="asc"))
-        assert [(row["ticket_number"], row["description"]) for row in rows] == [(3, "<p>Sem acesso</p>"), (4, None)]
-    finally:
-        with engine.begin() as conn:
-            conn.execute(delete(ticket_descriptions))
-
-
 def test_buckets_and_timeseries(engine: Engine, ctx: QueryContext) -> None:
     with engine.connect() as conn:
         late = {row["bucket"]: row["count"] for row in late_buckets(conn, TicketFilters(), ctx)}
@@ -95,8 +81,3 @@ def test_buckets_and_timeseries(engine: Engine, ctx: QueryContext) -> None:
         {"period": "2026-08-01", "created": 1, "solved": 0},
         {"period": "2026-09-01", "created": 5, "solved": 2},
     ]
-
-
-def test_ensure_schema_creates_ticket_descriptions(engine: Engine) -> None:
-    with engine.connect() as conn:
-        assert inspect(conn).has_table("ticket_descriptions")

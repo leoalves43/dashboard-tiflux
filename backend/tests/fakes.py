@@ -1,13 +1,12 @@
 """Named fakes for external I/O: Tiflux HTTP, Tiflux source and the sync store."""
 
-from collections.abc import Callable, Collection, Iterator, Sequence
-from datetime import datetime, timedelta
+from collections.abc import Callable, Iterator, Sequence
+from datetime import datetime
 from typing import Any
 
 import httpx
 from sqlalchemy import Table
 
-from app.sync.descriptions import PendingTicket
 from app.tiflux.client import PAGE_SIZE, JsonObject, Page, TifluxApiError, TifluxNotFound
 
 
@@ -150,68 +149,3 @@ class FakeActivitySource:
     def fetch_one(self, path: str) -> JsonObject | None:
         self._guard(path)
         return self._details.get(path)
-
-
-class TickingClock:
-    """Each call advances `step`, so deadline loops end after a predictable number of checks."""
-
-    def __init__(self, start: datetime, step: timedelta) -> None:
-        self.now = start
-        self._step = step
-
-    def __call__(self) -> datetime:
-        current = self.now
-        self.now += self._step
-        return current
-
-
-class FakeTicketDetailSource:
-    """GET /tickets/<n>: description per number; `missing` answers 404 (None), `failing` raises."""
-
-    def __init__(self, descriptions: dict[int, str], missing: set[int] | None = None,
-                 failing: set[int] | None = None) -> None:
-        self._descriptions = descriptions
-        self._missing = missing or set()
-        self._failing = failing or set()
-        self.fetched: list[int] = []
-
-    def fetch_one(self, path: str) -> JsonObject | None:
-        number = int(path.rsplit("/", 1)[1])
-        self.fetched.append(number)
-        if number in self._failing:
-            raise TifluxApiError(f"GET {path} -> 503")
-        if number in self._missing:
-            return None
-        return {"ticket_number": number, "description": self._descriptions.get(number)}
-
-    def fetch_page(self, path: str, params: dict[str, str | int]) -> Page:
-        raise AssertionError(f"description sync must not list {path}")
-
-    def iter_pages(self, path: str, params: dict[str, str | int]) -> Iterator[list[JsonObject]]:
-        raise AssertionError(f"description sync must not list {path}")
-
-
-class FakeDescriptionStore:
-    """Mirrors DescriptionStore: pending = never saved, or ticket updated after the saved copy."""
-
-    def __init__(self, tickets_updated_at: dict[int, datetime]) -> None:
-        self.tickets_updated_at = tickets_updated_at
-        self.saved: dict[int, tuple[str | None, datetime | None]] = {}
-
-    def _is_pending(self, number: int, updated_at: datetime) -> bool:
-        if number not in self.saved:
-            return True
-        copied_at = self.saved[number][1]
-        return copied_at is not None and updated_at > copied_at
-
-    def pending_descriptions(self, limit: int, skip: Collection[int]) -> list[PendingTicket]:
-        pending = [PendingTicket(n, at) for n, at in self.tickets_updated_at.items()
-                   if n not in skip and self._is_pending(n, at)]
-        return sorted(pending, key=lambda p: (p.updated_at, p.ticket_number), reverse=True)[:limit]
-
-    def save_description(self, ticket_number: int, description: str | None,
-                         ticket_updated_at: datetime | None) -> None:
-        self.saved[ticket_number] = (description, ticket_updated_at)
-
-    def description_progress(self) -> tuple[int, int]:
-        return len(self.saved), len(self.tickets_updated_at)

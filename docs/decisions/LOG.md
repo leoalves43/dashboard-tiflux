@@ -14,3 +14,4 @@
 2026-10-01 | nginx: index.html no-cache, /assets/ immutable 1y | browsers kept the old bundle after rebuilds; Vite fingerprints assets | -
 2026-10-01 | nginx re-resolves `api` via Docker DNS (resolver 127.0.0.11 + variable proxy_pass) | recreating the api container changed its IP and every /api call returned 502 until web restarted | literal proxy_pass http://api:8000
 2026-10-01 | Store ticket descriptions in ticket_descriptions, filled in the spare time of each sync cycle (spec 003) | export needs it for all tickets; ~190 MB; resumable across notebook sleep/restarts | description read live only (2026-10-01)
+2026-10-01 | Description backfill + export column reverted; description read live again | backfill used the Tiflux quota for ~18 h and paused with the notebook asleep; redo on the server together with communications | Store ticket descriptions in ticket_descriptions (2026-10-01)

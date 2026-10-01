@@ -2,6 +2,8 @@
 
 Spec: docs/specs/003-ticket-description.md.
 
+**Status: REVERTIDO (2026-10-01).** O código das tarefas 1–4 foi desfeito (carga gastava a cota do Tiflux e dependia do notebook ligado). Descrição volta a ser lida ao vivo; exportação sem a coluna. Refazer na fase de servidor (`git revert` do commit de reversão). A tabela `ticket_descriptions` ficou no banco com o que já foi copiado. Correção do nginx (tarefa 5) mantida.
+
 ## Arquitetura (delta)
 ```
 sync ciclo: dimensões → backfill/incremental/reconcile (como hoje)

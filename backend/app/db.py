@@ -91,18 +91,6 @@ technicians = Table(
     Column("raw", JSONB, nullable=False),
 )
 
-# Separate from `tickets` so the ticket upsert never wipes it, and so create_all adds it without an ALTER.
-# The rows themselves are the backfill progress: a ticket is pending while it has no row here or
-# tickets.updated_at moved past ticket_updated_at (spec 003).
-ticket_descriptions = Table(
-    "ticket_descriptions",
-    metadata,
-    Column("ticket_number", BigInteger, primary_key=True),
-    Column("description", Text),  # Tiflux HTML as received; NULL when the ticket is gone (404)
-    Column("ticket_updated_at", DateTime(timezone=True)),
-    Column("synced_at", DateTime(timezone=True), server_default=text("now()")),
-)
-
 sync_state = Table(
     "sync_state",
     metadata,

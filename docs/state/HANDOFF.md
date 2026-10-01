@@ -1,5 +1,5 @@
 # HANDOFF (2026-10-01)
-DONE: plans 001, 002, 003. Plan 003: sync copies every ticket description into `ticket_descriptions` (most recent first, ~150/min, ~18 h of running time; resumable — progress is the table, see log `descriptions progress=N/M`); ticket XLSX/CSV export has "Descrição" (plain text); hover/modal read it from the DB, live only if not copied yet. UI http://localhost:8080.
-NEXT: watch the description backfill finish (log). LATER (server): store communications + attachments too. Optional — link ticket numbers to Tiflux web; business-hours SLA; async full XLSX export (~95 s). Old volume `dashboard-tiflux_pgdata` orphaned — delete when sure.
-RISKS: backfill uses the Tiflux quota almost fully until done (other integrations on the same token compete); notebook asleep = backfill paused. Modal communications need Tiflux up. Attachment links may expire. Depends on external `Postgres` container.
-CONTEXT: docs/ARCHITECTURE.md, docs/specs/003-ticket-description.md, docs/plans/003-ticket-description.md.
+DONE: plans 001, 002. Plan 003 (description copied into the DB + "Descrição" export column) REVERTED: sync only syncs tickets again; hover/modal read the description live from Tiflux; ticket export has no description column. nginx re-resolve fix kept. UI http://localhost:8080.
+NEXT: LATER (server): store descriptions + communications + attachments (redo 003 via `git revert` of the revert commit). Optional — link ticket numbers to Tiflux web; business-hours SLA; async full XLSX export (~95 s). Old volume `dashboard-tiflux_pgdata` orphaned — delete when sure.
+RISKS: table `ticket_descriptions` left in the DB with the rows already copied (no code reads it; reuse on the server or DROP). Modal/hover description and communications need Tiflux up. Attachment links may expire. Depends on external `Postgres` container.
+CONTEXT: docs/ARCHITECTURE.md, docs/plans/003-ticket-description.md (reverted status).
