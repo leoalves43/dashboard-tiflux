@@ -1,8 +1,9 @@
 from datetime import date
 
 import pytest
-from sqlalchemy import Engine, inspect
+from sqlalchemy import Engine, delete, insert, inspect
 
+from app.db import ticket_descriptions
 from app.filters import TicketFilters
 from app.queries.breakdown import breakdown
 from app.queries.overview import aging_buckets, kpis, late_buckets, timeseries
@@ -68,6 +69,19 @@ def test_export_iterator_returns_every_filtered_row(engine: Engine, ctx: QueryCo
         rows = list(iter_all_tickets(conn, TicketFilters(situations=["closed"]), ctx,
                                      sort="created_at", direction="asc"))
     assert [row["ticket_number"] for row in rows] == [3, 4]
+
+
+def test_export_iterator_joins_stored_descriptions(engine: Engine, ctx: QueryContext) -> None:
+    with engine.begin() as conn:
+        conn.execute(insert(ticket_descriptions).values(ticket_number=3, description="<p>Sem acesso</p>"))
+    try:
+        with engine.connect() as conn:
+            rows = list(iter_all_tickets(conn, TicketFilters(situations=["closed"]), ctx,
+                                         sort="created_at", direction="asc"))
+        assert [(row["ticket_number"], row["description"]) for row in rows] == [(3, "<p>Sem acesso</p>"), (4, None)]
+    finally:
+        with engine.begin() as conn:
+            conn.execute(delete(ticket_descriptions))
 
 
 def test_buckets_and_timeseries(engine: Engine, ctx: QueryContext) -> None:

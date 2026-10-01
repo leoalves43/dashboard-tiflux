@@ -45,6 +45,7 @@ def test_ticket_export_matches_filtered_rows(client: TestClient) -> None:
     assert response.status_code == 200
     rows = list(load_workbook(io.BytesIO(response.content)).active.iter_rows(values_only=True))
     assert len(rows) == 1 + 3  # header + open tickets A, B, F
+    assert rows[0][-1] == "Descrição"
 
 
 def test_breakdown_export_csv(client: TestClient) -> None:

@@ -32,3 +32,18 @@ def test_xlsx_has_header_and_local_naive_dates() -> None:
     assert rows[1] == ("SUPORTE", "Aberto", 10.5, datetime(2026, 9, 29, 12, 0))  # noqa: DTZ001 - Excel cells are naive local time
     assert len(rows) == 3
     assert len(sheet.title) <= 31
+
+
+def test_description_is_exported_as_plain_text() -> None:
+    columns = [ExportColumn("ticket_number", "Nº"), ExportColumn("description", "Descrição")]
+    rows = [{"ticket_number": 1, "description": "<p>Bom dia</p><p>Segue &amp; anexo</p>"},
+            {"ticket_number": 2, "description": None}]
+    sheet = load_workbook(io.BytesIO(export_bytes("xlsx", rows, columns, "t", TZ))).active
+    assert list(sheet.iter_rows(values_only=True))[1:] == [(1, "Bom dia\nSegue & anexo"), (2, None)]
+
+
+def test_xlsx_cuts_text_above_the_excel_cell_limit() -> None:
+    columns = [ExportColumn("description", "Descrição")]
+    content = export_bytes("xlsx", [{"description": "a" * 40_000}], columns, "t", TZ)
+    cell = list(load_workbook(io.BytesIO(content)).active.iter_rows(values_only=True))[1][0]
+    assert len(cell) == 32_767 and cell.endswith("…(cortado)")
