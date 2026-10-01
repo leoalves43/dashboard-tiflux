@@ -63,3 +63,8 @@ def test_bucket_export(client: TestClient) -> None:
     rows = list(load_workbook(io.BytesIO(response.content)).active.iter_rows(values_only=True))
     assert ("8–15 dias", 1) in rows and len(rows) == 6
     assert client.get("/api/export/buckets/nope/csv").status_code == 404
+
+
+def test_ticket_summary_route_returns_404_for_unknown_ticket(client: TestClient) -> None:
+    assert client.get("/api/tickets/999999").status_code == 404
+    assert client.get("/api/tickets/1").json()["ticket_number"] == 1

@@ -5,7 +5,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, HTTPException, Query
 
 from app.queries import breakdown as breakdown_queries
-from app.queries import options, overview, ticket_list
+from app.queries import options, overview, ticket_detail, ticket_list
 from app.queries.breakdown import Dimension
 from app.queries.metrics import PlainRow
 from app.routes.deps import Conn, Ctx, Filters, TicketPageQuery, TimeseriesQuery
@@ -59,3 +59,11 @@ def get_tickets(conn: Conn, ctx: Ctx, query: Annotated[TicketPageQuery, Query()]
                                         page=query.page, page_size=query.page_size)
     except ValueError as error:
         raise HTTPException(422, str(error)) from error
+
+
+@router.get("/tickets/{ticket_number}")
+def get_ticket_summary(conn: Conn, ticket_number: int) -> PlainRow:
+    summary = ticket_detail.ticket_summary(conn, ticket_number)
+    if summary is None:
+        raise HTTPException(404, f"ticket_number={ticket_number} not found in the local database")
+    return summary
