@@ -83,8 +83,11 @@ def _live_from_tiflux(ticket_number: int, load: Callable[[], ActivityItem]) -> A
 
 
 @router.get("/tickets/{ticket_number}/description")
-def get_ticket_description(source: Tiflux, ticket_number: int) -> ActivityItem:
-    """Live from Tiflux (not stored yet — see docs/decisions/LOG.md 2026-10-01)."""
+def get_ticket_description(conn: Conn, source: Tiflux, ticket_number: int) -> ActivityItem:
+    """From our DB once the sync copied it (spec 003); live from Tiflux until then."""
+    copied, description = ticket_detail.stored_description(conn, ticket_number)
+    if copied:
+        return {"description": description}
     return _live_from_tiflux(ticket_number, lambda: {"description": load_description(source, ticket_number)})
 
 
