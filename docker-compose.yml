@@ -6,7 +6,7 @@ services:
     image: dashboard-tiflux-backend
     restart: unless-stopped
     env_file: .env
-    # Postgres is the shared "Postgres" container (not managed here), reached via the host's published port
+    # Postgres is remote (DB_HOST in .env); host-gateway kept so DB_HOST=host.docker.internal still works for a local DB
     extra_hosts: &host_gateway
       - "host.docker.internal:host-gateway"
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

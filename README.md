@@ -3,7 +3,7 @@
 Painel de chamados do Tiflux: visão por cliente, mesa e técnico, atrasos de SLA e exportação XLSX/CSV.
 
 ```bash
-docker compose up -d --build     # sobe api, sync e web (Postgres é o container compartilhado "Postgres")
+docker compose up -d --build     # sobe api, sync e web (Postgres é remoto: DB_HOST no .env)
 ```
 - Painel: http://localhost:8080 (porta `WEB_PORT` do `.env`)
 - Postgres (externo): `localhost:${DB_PORT}`, banco `DB_NAME`, schema `SCHEMA_NAME`

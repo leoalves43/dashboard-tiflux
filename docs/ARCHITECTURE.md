@@ -1,7 +1,7 @@
 # ARCHITECTURE
 
 Tiflux API → `sync` → shared external Postgres (container `Postgres`, not in compose; schema `$SCHEMA_NAME`) ← `api` (FastAPI) ← `web` (nginx + React, proxies `/api`).
-Compose: `docker-compose.yml`; api/sync reach the DB at `DB_HOST=host.docker.internal:DB_PORT`; host port `WEB_PORT` (UI). Token stays in api/sync only. `api` also calls Tiflux live, only for the ticket modal/hover (description, follow-ups, attachments; not stored — LOG 2026-10-01).
+Compose: `docker-compose.yml`; api/sync reach the remote DB at `DB_HOST:DB_PORT` (186.250.92.136:5432, LOG 2026-10-02); host port `WEB_PORT` (UI). Token stays in api/sync only. `api` also calls Tiflux live, only for the ticket modal/hover (description, follow-ups, attachments; not stored — LOG 2026-10-01).
 
 ## Backend (`backend/app`)
 - `config.py` settings from `.env`; `db.py` tables + `ensure_schema` (advisory lock, api and sync both call it).
