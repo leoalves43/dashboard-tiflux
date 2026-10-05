@@ -2,9 +2,11 @@
 - docs/ARCHITECTURE.md — read when changing modules, data flow, sync or containers
 - docs/specs/001-dashboard.md — read when changing SLA rules, metrics or dashboard scope
 - docs/specs/002-ticket-details.md — read when changing the ticket hover card or detail modal
+- docs/specs/004-column-editor.md — read when changing the ticket table columns, column editor or ticket export columns
 - docs/specs/003-ticket-description.md — REVERTED; read when redoing description sync on the server
 - docs/plans/001-dashboard.md — read to see task status of the initial build
 - docs/plans/002-ticket-details.md — read to see task status of the ticket hover/modal feature
+- docs/plans/004-column-editor.md — read to see task status of the column editor
 - docs/plans/003-ticket-description.md — REVERTED; read when redoing the description sync/export feature
 - docs/decisions/LOG.md — read before revisiting a design choice
 - docs/state/HANDOFF.md — read first when resuming work

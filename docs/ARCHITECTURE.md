@@ -10,12 +10,12 @@ Compose: `docker-compose.yml`; api/sync reach the remote DB at `DB_HOST:DB_PORT`
 - `sla.py` SLA rules as SQL expressions with `now` bound (see spec § SLA). `filters.py` `TicketFilters` → WHERE; the only filter path for charts, tables and exports.
 - `queries/` metrics (shared aggregates), overview (KPIs, series, buckets), breakdown (per dimension), ticket_list (paged + streaming), options.
 - `queries/ticket_detail.py` one ticket's local summary; `ticket_activity.py` live description + follow-ups (answers ∪ internal communications, chronological) + attachments, `TifluxSource` injected via `routes/deps.get_tiflux_source`; Tiflux 404 → HTTP 404, other failures → 502.
-- `routes/` REST under `/api`, exports under `/api/export/{tickets|breakdown/<dim>|kpis}/{csv|xlsx}`. Query models: see `routes/deps.py` (FastAPI expands a Pydantic query model only when it is the sole query param).
+- `routes/` REST under `/api`, exports under `/api/export/{tickets|breakdown/<dim>|kpis}/{csv|xlsx}`; ticket export takes repeated `columns` (order + subset of `LIST_COLUMNS`, none = all; filters output only, never the sort). Query models: see `routes/deps.py` (FastAPI expands a Pydantic query model only when it is the sole query param).
 
 ## Frontend (`frontend/src`)
 - State lives in the URL hash `#/<page>?<filters>` (`filters/route.ts`), same param names as the API.
 - `api/client.ts` typed fetch + `exportUrl`; per-ticket summary/description cached for the session (activity never cached).
-- `components/TicketTable` (used on every tab) → `TicketHoverCard` (400 ms rest) and `TicketModal` (native `<dialog>`); Tiflux HTML shown as text via `richText.htmlToText`.
+- `components/TicketTable` (used on every tab) → `TicketHoverCard` (400 ms rest) and `TicketModal` (native `<dialog>`); Tiflux HTML shown as text via `richText.htmlToText`. Columns: `components/ticketColumns.tsx` (22 defs) + `ColumnEditor`; layout in `columns/` saved to localStorage `ticketColumns.v1`, shared by every ticket table and sent as `columns` on export.
 - `charts/` ECharts core wrapper reading CSS tokens; `pages/` one component per tab.
 
 ## Tests
