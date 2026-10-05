@@ -10,14 +10,18 @@ from sqlalchemy import Engine
 
 from app.config import Settings
 from app.main import create_app
-from app.routes.deps import get_tiflux_source
-from tests.conftest import TEST_SCHEMA
+from app.routes.deps import get_context, get_tiflux_source
+from app.sla import QueryContext
+from tests.conftest import NOW, TEST_SCHEMA
 from tests.fakes import FakeActivitySource
 
 
 @pytest.fixture(scope="module")
 def client(engine: Engine) -> Iterator[TestClient]:
     app = create_app(Settings(schema_name=TEST_SCHEMA))  # type: ignore[call-arg]
+    # Fixed clock like the query tests: late/aging buckets used the real now and drifted
+    # (test_bucket_export broke on 2026-10-05 when ticket A crossed into 16–30 days).
+    app.dependency_overrides[get_context] = lambda: QueryContext(now=NOW)
     with TestClient(app) as test_client:
         yield test_client
 
@@ -97,7 +101,7 @@ def test_ticket_activity_route_maps_tiflux_outcomes(client: TestClient, source: 
     try:
         responses = [client.get(f"/api/tickets/7/{part}") for part in ("activity", "description")]
     finally:
-        client.app.dependency_overrides.clear()  # type: ignore[attr-defined]
+        client.app.dependency_overrides.pop(get_tiflux_source)  # type: ignore[attr-defined]
     # description of a ticket with no detail payload is 404 in the fake, so only check failure statuses there
     assert responses[0].status_code == status, responses[0].text
     assert responses[1].status_code == (404 if status == 200 else status), responses[1].text
