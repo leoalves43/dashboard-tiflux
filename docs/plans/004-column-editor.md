@@ -25,5 +25,5 @@ export: /api/export/tickets/{fmt}?...&columns=title&columns=ticket_number  (sem 
 ## Tarefas
 - [x] 1. Backend — `columns` na exportação de chamados. Done: testes (ordem, subconjunto, sort por coluna oculta = 200, desconhecida = 422) verdes; ruff limpo.
 - [x] 2. Frontend — `columnLayout` + armazenamento. Done: testes Vitest verdes.
-- [ ] 3. Frontend — DESIGN.md (Column editor) primeiro; depois `ticketColumns`, `useColumnLayout`, `ColumnEditor`, TicketTable usa o layout, export envia `columns`. Done: build (tsc) verde; verificado no navegador.
+- [x] 3. Frontend — DESIGN.md (Column editor) primeiro; depois `ticketColumns`, `useColumnLayout`, `ColumnEditor`, TicketTable usa o layout, export envia `columns`. Done: build (tsc) verde; verificado no navegador.
 - [ ] 4. Docs + verificação dos 10 critérios + exportação. Done: tudo verde.

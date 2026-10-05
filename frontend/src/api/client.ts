@@ -53,7 +53,7 @@ export const api = {
 };
 
 export type ExportTarget =
-  | { kind: "tickets"; sort?: string; direction?: "asc" | "desc" }
+  | { kind: "tickets"; sort?: string; direction?: "asc" | "desc"; columns?: string[] }
   | { kind: "breakdown"; dimension: Dimension }
   | { kind: "kpis" }
   | { kind: "timeseries"; granularity: Granularity }
@@ -70,5 +70,8 @@ export function exportUrl(target: ExportTarget, format: ExportFormat, filters: F
   }
   if (target.kind === "buckets") return `/api/export/buckets/${target.bucket}/${format}?${filtersToParams(filters)}`;
   const extra = { sort: target.sort ?? "created_at", direction: target.direction ?? "desc" };
-  return `/api/export/tickets/${format}?${filtersToParams(filters, extra)}`;
+  const params = filtersToParams(filters, extra);
+  // Repeated keys, in screen order: the sheet follows the column editor (spec 004).
+  target.columns?.forEach((key) => params.append("columns", key));
+  return `/api/export/tickets/${format}?${params}`;
 }

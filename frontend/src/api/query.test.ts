@@ -48,6 +48,11 @@ describe("exportUrl", () => {
     expect(url).toContain("desk_ids=1&desk_ids=2");
   });
 
+  it("sends the visible ticket columns as repeated keys, in order", () => {
+    const url = exportUrl({ kind: "tickets", columns: ["title", "ticket_number"] }, "csv", EMPTY_FILTERS);
+    expect(new URL(url, "http://x").searchParams.getAll("columns")).toEqual(["title", "ticket_number"]);
+  });
+
   it("passes granularity for series and kind for buckets", () => {
     expect(exportUrl({ kind: "timeseries", granularity: "week" }, "csv", EMPTY_FILTERS)).toBe("/api/export/timeseries/csv?granularity=week");
     expect(exportUrl({ kind: "buckets", bucket: "aging" }, "xlsx", EMPTY_FILTERS)).toBe("/api/export/buckets/aging/xlsx?");
