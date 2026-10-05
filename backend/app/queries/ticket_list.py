@@ -49,6 +49,20 @@ LIST_COLUMNS = (
 )
 
 
+
+def export_columns(keys: list[str]) -> list[ExportColumn]:
+    """Export columns in the order the user chose; no keys = every column.
+
+    Example: export_columns(["title", "ticket_number"]) -> [Título, Nº]
+    """
+    if not keys:
+        return list(LIST_COLUMNS)
+    by_key = {col.key: col for col in LIST_COLUMNS}
+    unknown = [key for key in keys if key not in by_key]
+    if unknown:
+        raise ValueError(f"columns={unknown!r}; expected keys from {sorted(by_key)}")
+    return [by_key[key] for key in dict.fromkeys(keys)]
+
 def _selectable_columns(ctx: QueryContext) -> dict[str, ColumnElement[Any]]:
     computed: dict[str, ColumnElement[Any]] = {
         "sla_state": sla_state(ctx),

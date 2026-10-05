@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import Depends, Query, Request
+from pydantic import Field
 from sqlalchemy import Connection, Engine
 
 from app.config import Settings
@@ -48,6 +49,11 @@ class TimeseriesQuery(TicketFilters):
 class TicketSortQuery(TicketFilters):
     sort: str = "created_at"
     direction: SortDirection = "desc"
+
+
+class TicketExportQuery(TicketSortQuery):
+    # Visible columns of the ticket table, in screen order (spec 004); empty = all.
+    columns: list[str] = Field(default_factory=list)
 
 
 class TicketPageQuery(TicketSortQuery):

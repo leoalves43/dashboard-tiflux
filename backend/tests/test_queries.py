@@ -6,7 +6,7 @@ from sqlalchemy import Engine
 from app.filters import TicketFilters
 from app.queries.breakdown import breakdown
 from app.queries.overview import aging_buckets, kpis, late_buckets, timeseries
-from app.queries.ticket_list import iter_all_tickets, list_tickets
+from app.queries.ticket_list import LIST_COLUMNS, export_columns, iter_all_tickets, list_tickets
 from app.sla import QueryContext
 
 
@@ -81,3 +81,8 @@ def test_buckets_and_timeseries(engine: Engine, ctx: QueryContext) -> None:
         {"period": "2026-08-01", "created": 1, "solved": 0},
         {"period": "2026-09-01", "created": 5, "solved": 2},
     ]
+
+
+def test_export_columns_follow_requested_order_without_duplicates() -> None:
+    assert [c.key for c in export_columns(["sla_state", "ticket_number", "sla_state"])] == ["sla_state", "ticket_number"]
+    assert export_columns([]) == list(LIST_COLUMNS)

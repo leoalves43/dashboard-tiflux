@@ -47,6 +47,20 @@ def test_ticket_export_matches_filtered_rows(client: TestClient) -> None:
     assert len(rows) == 1 + 3  # header + open tickets A, B, F
 
 
+
+def test_ticket_export_keeps_chosen_columns_and_order(client: TestClient) -> None:
+    # Sorting by a column left out of the export must still work (spec 004).
+    params = {"sort": "late_days", "columns": ["title", "ticket_number"]}
+    response = client.get("/api/export/tickets/xlsx", params=params)
+    assert response.status_code == 200, response.text
+    header = next(load_workbook(io.BytesIO(response.content)).active.iter_rows(values_only=True))
+    assert header == ("Título", "Nº")
+
+
+def test_ticket_export_rejects_unknown_column(client: TestClient) -> None:
+    response = client.get("/api/export/tickets/csv", params={"columns": ["bogus"]})
+    assert response.status_code == 422 and "bogus" in response.text
+
 def test_breakdown_export_csv(client: TestClient) -> None:
     response = client.get("/api/export/breakdown/desk/csv", params={"sla": ["late"]})
     lines = response.content.decode("utf-8-sig").splitlines()

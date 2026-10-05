@@ -12,8 +12,8 @@ from app.queries import breakdown as breakdown_queries
 from app.queries.breakdown import DIMENSIONS, Dimension
 from app.queries.metrics import METRIC_COLUMNS
 from app.queries.overview import aging_buckets, kpis, late_buckets, timeseries
-from app.queries.ticket_list import LIST_COLUMNS, iter_all_tickets
-from app.routes.deps import Conn, Ctx, Filters, TicketSortQuery, TimeseriesQuery, get_settings
+from app.queries.ticket_list import export_columns, iter_all_tickets
+from app.routes.deps import Conn, Ctx, Filters, TicketExportQuery, TimeseriesQuery, get_settings
 
 router = APIRouter(prefix="/api/export")
 MEDIA_TYPES = {
@@ -31,10 +31,11 @@ def _download(content: bytes, fmt: ExportFormat, basename: str, tz: str) -> Resp
 
 @router.get("/tickets/{fmt}")
 def export_tickets(fmt: ExportFormat, conn: Conn, ctx: Ctx, settings: AppSettings,
-                   query: Annotated[TicketSortQuery, Query()]) -> Response:
+                   query: Annotated[TicketExportQuery, Query()]) -> Response:
     try:
+        columns = export_columns(query.columns)
         rows = iter_all_tickets(conn, query, ctx, sort=query.sort, direction=query.direction)
-        content = export_bytes(fmt, rows, LIST_COLUMNS, "Chamados", settings.tz)
+        content = export_bytes(fmt, rows, columns, "Chamados", settings.tz)
     except ValueError as error:
         raise HTTPException(422, str(error)) from error
     return _download(content, fmt, "chamados", settings.tz)
